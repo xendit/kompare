@@ -1,0 +1,22 @@
+openapi: 3.0.1
+info:
+  title: kompare
+  description: Go library and runner for running tests against Fawkes clusters.
+  x-cortex-git:
+    github:
+      repository: xendit/kompare
+  x-cortex-tag: kompare
+  x-cortex-dependency: []
+  x-cortex-service-groups:
+    - P4
+    - theo@xendit.co
+  x-cortex-owners:
+    - type: EMAIL
+      email: theo@xendit.co
+    - type: EMAIL
+      name: matthew@xendit.co
+    - type: EMAIL
+      name: abel@xendit.co
+    - type: GROUP
+      name: xendit/infrastructure
+    

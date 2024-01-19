@@ -18,7 +18,7 @@ func CompareNumberOfDeployments(sourceDeployments, targetDeplotments *v1.Deploym
 	return lenSourceDeployments, lenTargetDeplotments
 }
 
-func iterateSimpleDiff(sourceDeployments, targetDeplotments *v1.DeploymentList) ([]string, []string) {
+func IterateSimpleDiff(sourceDeployments, targetDeplotments *v1.DeploymentList) ([]string, []string) {
 	lenSourceDeployments, lenTargetDeplotments := CompareNumberOfDeployments(sourceDeployments, targetDeplotments)
 	if lenSourceDeployments != lenTargetDeplotments {
 		var onlyInSource, onlyInTarget []string
@@ -50,7 +50,7 @@ func compareDeploymentsByName(first_deployments, second_deployments *v1.Deployme
 	return diffNameList
 }
 
-// TODO
+// TODO; compare the important parts of the manifest like images, configmaps, variables defined, optionally replica numbers, etc.
 func deepDeployFirstSecondCompare(sourceDeployments, targetDeplotments *v1.DeploymentList, show_replicas *bool) {
 
 }

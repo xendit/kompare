@@ -10,24 +10,24 @@ import (
 // source vs target or old vs new or First vs Second
 func CompareNumberOfDeployments(sourceDeployments, targetDeplotments *v1.DeploymentList) (int, int) {
 	//Print quantity of deployments
-	len_sourceDeployments := len(sourceDeployments.Items)
-	len_targetDeplotments := len(targetDeplotments.Items)
+	lenSourceDeployments := len(sourceDeployments.Items)
+	lenTargetDeplotments := len(targetDeplotments.Items)
 	fmt.Printf("There are %d Deployments(apps) in the source cluster and %d in the target Cluster\n",
-		len_sourceDeployments, len_targetDeplotments)
+		lenSourceDeployments, lenTargetDeplotments)
 	// IF deployment quantities in both clusters are different find those diferent apps in a later function
-	return len_sourceDeployments, len_targetDeplotments
+	return lenSourceDeployments, lenTargetDeplotments
 }
 
 func iterateSimpleDiff(sourceDeployments, targetDeplotments *v1.DeploymentList) ([]string, []string) {
-	len_sourceDeployments, len_targetDeplotments := CompareNumberOfDeployments(sourceDeployments, targetDeplotments)
-	if len_sourceDeployments != len_targetDeplotments {
+	lenSourceDeployments, lenTargetDeplotments := CompareNumberOfDeployments(sourceDeployments, targetDeplotments)
+	if lenSourceDeployments != lenTargetDeplotments {
 		var onlyInSource, onlyInTarget []string
 
 		fmt.Printf("NOTICE NOT EQUAL NUMBER OF DEPLOYMENTS!!!\n")
 		onlyInSource = compareDeploymentsByName(sourceDeployments, targetDeplotments,
-			"- Source cluster has deployment %s, but it's not in the second cluster\n")
+			"- Source cluster has deployment %s, but it's not in the target cluster\n")
 		onlyInTarget = compareDeploymentsByName(targetDeplotments, sourceDeployments,
-			"- target cluster has deployment %s, but it's not in the first cluster\n")
+			"- target cluster has deployment %s, but it's not in the source cluster\n")
 		return onlyInSource, onlyInTarget
 	}
 	return nil, nil

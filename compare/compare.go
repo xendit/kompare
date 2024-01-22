@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/go-test/deep"
+
 	v1 "k8s.io/api/apps/v1"
 )
 
@@ -52,16 +54,27 @@ func compareDeploymentsByName(first_deployments, second_deployments *v1.Deployme
 }
 
 // TODO; compare the important parts of the manifest like images, configmaps, variables defined, optionally replica numbers, etc.
-func DeepDeploySourceTargetCompare(sourceDeployments, targetDeplotments *v1.DeploymentList) {
-	fmt.Println("Deep comparing deployments in foruce and target")
+func DeepDeploySourceTargetCompare(sourceDeployments, targetDeplotments *v1.DeploymentList) []DiffWithName {
+	fmt.Println("Deep comparing deployments in soruce and target clusters")
+	var tmpDiff DiffWithName
+	var diffSourceTarget []DiffWithName
 	for _, d := range sourceDeployments.Items {
 		for _, b := range targetDeplotments.Items {
 			if b.Name == d.Name {
+				fmt.Println("Comparing " + b.Name + " On both source and target cluster.")
 				if !reflect.DeepEqual(d.Spec.Template.Spec, b.Spec.Template.Spec) {
-					fmt.Println("Deployment %s exists on both clusters, but it's different", b.Name)
+					fmt.Println("Deployment " + b.Name + "  exists on both clusters, but it's different")
+					if diff := deep.Equal(d.Spec.Template.Spec, b.Spec.Template.Spec); diff != nil {
+						fmt.Println("Diff:")
+						fmt.Println(diff)
+						tmpDiff.Name = b.Name
+						tmpDiff.NameSpace = b.Namespace
+						tmpDiff.Diff = diff
+						diffSourceTarget = append(diffSourceTarget, tmpDiff)
+					}
 				}
 			}
 		}
 	}
-	fmt.Println("We came here!")
+	return diffSourceTarget
 }

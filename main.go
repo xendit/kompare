@@ -8,15 +8,19 @@ import (
 
 func main() {
 	configFile := "/Users/abel.guzman/.kube/config"
-	x := connect.ConnectNow(&configFile)
+	clientsetToSource := connect.ConnectNow(&configFile)
+	nameSpacesList := query.ListNameSpaces(clientsetToSource)
 	// fmt.Println(x)
-	xx := query.ListK8sDeployments(x, "default")
-	// If you need to switch context
-	// y := connect.ContextSwitxh("arn:aws:eks:ap-southeast-1:705506614808:cluster/trident-playground-0", &configFile)
-	y := connect.ContextSwitxh("arn:aws:eks:ap-northeast-2:273217691745:cluster/prod-kr-nihao-eks", &configFile)
-	yy := query.ListK8sDeployments(y, "default")
-	// fmt.Println(query.ListK8sDeployments(x, "default"))
-	// fmt.Println(query.ListNameSpaces(x))
-	compare.IterateSimpleDiff(xx, yy)
-	compare.DeepDeploySourceTargetCompare(xx, yy)
+	for _, n := range nameSpacesList.Items {
+		deploymentListOnSource := query.ListK8sDeployments(clientsetToSource, n.Name)
+		// If you need to switch context
+		clientsetToTarget := connect.ContextSwitxh("arn:aws:eks:ap-southeast-1:705506614808:cluster/trident-playground-0", &configFile)
+		deploymentListOnTarget := query.ListK8sDeployments(clientsetToTarget, n.Name)
+		// fmt.Println(query.ListK8sDeployments(x, "default"))
+		// fmt.Println(query.ListNameSpaces(x))
+		// compare.IterateSimpleDiff(deploymentListOnSource, deploymentListOnTarget)
+		compare.DeepDeploySourceTargetCompare(deploymentListOnSource, deploymentListOnTarget)
+		// fmt.Println(x)
+	}
+
 }

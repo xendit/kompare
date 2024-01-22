@@ -2,6 +2,7 @@ package compare
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	v1 "k8s.io/api/apps/v1"
@@ -51,6 +52,16 @@ func compareDeploymentsByName(first_deployments, second_deployments *v1.Deployme
 }
 
 // TODO; compare the important parts of the manifest like images, configmaps, variables defined, optionally replica numbers, etc.
-func deepDeployFirstSecondCompare(sourceDeployments, targetDeplotments *v1.DeploymentList, show_replicas *bool) {
-
+func DeepDeploySourceTargetCompare(sourceDeployments, targetDeplotments *v1.DeploymentList) {
+	fmt.Println("Deep comparing deployments in foruce and target")
+	for _, d := range sourceDeployments.Items {
+		for _, b := range targetDeplotments.Items {
+			if b.Name == d.Name {
+				if !reflect.DeepEqual(d.Spec.Template.Spec, b.Spec.Template.Spec) {
+					fmt.Println("Deployment %s exists on both clusters, but it's different", b.Name)
+				}
+			}
+		}
+	}
+	fmt.Println("We came here!")
 }

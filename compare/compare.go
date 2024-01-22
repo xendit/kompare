@@ -12,7 +12,7 @@ func CompareNumberOfDeployments(sourceDeployments, targetDeplotments *v1.Deploym
 	//Print quantity of deployments
 	lenSourceDeployments := len(sourceDeployments.Items)
 	lenTargetDeplotments := len(targetDeplotments.Items)
-	fmt.Printf("There are %d Deployments(apps) in the source cluster and %d in the target Cluster\n",
+	fmt.Printf("There are %d Deployments(apps) in the source cluster and %d in the target cluster\n",
 		lenSourceDeployments, lenTargetDeplotments)
 	// IF deployment quantities in both clusters are different find those diferent apps in a later function
 	return lenSourceDeployments, lenTargetDeplotments

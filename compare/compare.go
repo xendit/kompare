@@ -53,9 +53,8 @@ func compareDeploymentsByName(first_deployments, second_deployments *v1.Deployme
 	return diffNameList
 }
 
-// TODO; compare the important parts of the manifest like images, configmaps, variables defined, optionally replica numbers, etc.
+// Compare the important parts of the manifest like images, configmaps, variables defined, optionally replica numbers, etc.
 func DeepDeploySourceTargetCompare(sourceDeployments, targetDeplotments *v1.DeploymentList) []DiffWithName {
-	fmt.Println("Deep comparing deployments in soruce and target clusters")
 	var tmpDiff DiffWithName
 	var diffSourceTarget []DiffWithName
 	for _, d := range sourceDeployments.Items {
@@ -73,6 +72,7 @@ func DeepDeploySourceTargetCompare(sourceDeployments, targetDeplotments *v1.Depl
 						diffSourceTarget = append(diffSourceTarget, tmpDiff)
 					}
 				}
+				fmt.Println("Done.")
 			}
 		}
 	}

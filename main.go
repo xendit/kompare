@@ -2,43 +2,38 @@ package main
 
 import (
 	"fmt"
-	"kompare/query"
-	// "kompare/compare"
-	// "kompare/connect"
+	"kompare/kubernetes"
+	"kompare/kubernetes/query"
+	"os"
+	"path"
 )
 
 func main() {
-	configFile := "/Users/abel.guzman/.kube/config"
-	// clientsetToSource, err := connect.ConnectNow(&configFile)
-	// if err != nil {
-	// 	fmt.Printf("Error connecting: %v\n", err)
-	// 	return
-	// }
-	// nameSpacesList, err := query.ListNameSpaces(clientsetToSource)
-	// if err != nil {
-	// 	fmt.Printf("Error getting namespace list: %v\n", err)
-	// 	return
-	// }
-	// for _, ns := range nameSpacesList.Items {
-	// 	deploymentListOnSource, err := query.ListK8sDeployments(clientsetToSource, ns.Name)
-	// 	if err != nil {
-	// 		fmt.Printf("Error getting source cluster's deployment list: %v\n", err)
-	// 		return
-	// 	}
-	// 	// If you need to switch context
-	// 	clientsetToTarget, err := connect.ContextSwitch("arn:aws:eks:ap-southeast-1:705506614808:cluster/trident-playground-0", &configFile)
-	// 	if err != nil {
-	// 		fmt.Printf("Error switching context: %v\n", err)
-	// 		return
-	// 	}
-	// 	deploymentListOnTarget, err := query.ListK8sDeployments(clientsetToTarget, ns.Name)
-	// 	if err != nil {
-	// 		fmt.Printf("Error getting target cluster's deployment list: %v\n", err)
-	// 		return
-	// 	}
-	// 	// compare.IterateDeploymentsSimpleDiff(deploymentListOnSource, deploymentListOnTarget)
-	// 	compare.DeepDeploySourceTargetCompare(deploymentListOnSource, deploymentListOnTarget)
-	// }
-	fmt.Println(query.ListCRDs(configFile))
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	kubeconfigPath := path.Join(homeDir, ".kube", "config")
+	client, err := kubernetes.NewKubernetesClient(kubeconfigPath)
+	if err != nil {
+		panic(err)
+	}
+
+	namespaces, err := query.ListNamespaces(client)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, ns := range namespaces.Items {
+		fmt.Printf("namespace: %s\n---\n", ns.Name)
+		deployments, err := query.ListDeployments(client, ns.Name)
+		if err != nil {
+			panic(err)
+		}
+		for _, d := range deployments.Items {
+			fmt.Printf("- %s\n", d.Name)
+		}
+	}
 
 }

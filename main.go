@@ -20,8 +20,8 @@ func main() {
 		return
 	}
 	// fmt.Println(x)
-	for _, n := range nameSpacesList.Items {
-		deploymentListOnSource, err := query.ListK8sDeployments(clientsetToSource, n.Name)
+	for _, ns := range nameSpacesList.Items {
+		deploymentListOnSource, err := query.ListK8sDeployments(clientsetToSource, ns.Name)
 		if err != nil {
 			fmt.Printf("Error getting source cluster's deployment list: %v\n", err)
 			return
@@ -32,7 +32,7 @@ func main() {
 			fmt.Printf("Error switching context: %v\n", err)
 			return
 		}
-		deploymentListOnTarget, err := query.ListK8sDeployments(clientsetToTarget, n.Name)
+		deploymentListOnTarget, err := query.ListK8sDeployments(clientsetToTarget, ns.Name)
 		if err != nil {
 			fmt.Printf("Error getting target cluster's deployment list: %v\n", err)
 			return

@@ -37,11 +37,8 @@ func main() {
 			fmt.Printf("Error getting target cluster's deployment list: %v\n", err)
 			return
 		}
-		// fmt.Println(query.ListK8sDeployments(x, "default"))
-		// fmt.Println(query.ListNameSpaces(x))
-		// compare.IterateSimpleDiff(deploymentListOnSource, deploymentListOnTarget)
+		// compare.IterateDeploymentsSimpleDiff(deploymentListOnSource, deploymentListOnTarget)
 		compare.DeepDeploySourceTargetCompare(deploymentListOnSource, deploymentListOnTarget)
 		// fmt.Println(x)
 	}
-
 }

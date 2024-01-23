@@ -2,6 +2,6 @@ package compare
 
 type DiffWithName struct {
 	Name      string
-	NameSpace string
+	Namespace string
 	Diff      []string
 }

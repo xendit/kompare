@@ -60,3 +60,10 @@ Add guides about the process of contributing to the service.
 ## Additional Resource
 
 You can link reading materials related to the service on this section. This may include but not limited to the API documentation, Confluence document, articles, etc.
+
+# TODO
+1. Traefik routes. They are not standard k8s objects. (Abel)
+2. Argo rollouts. They are not standard k8s objects.
+3. How will we feed configs to the program; e.g.: kubeconfig.
+4. Create tests cases (Matthew)
+

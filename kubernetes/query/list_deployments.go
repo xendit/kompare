@@ -8,10 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// TODO: to decide which fields to take
-type Deployment struct {
-}
-
+// ListDeployments lists deployments in a namespace.
 func ListDeployments(client *kubernetes.Client, namespace string) (*v1.DeploymentList, error) {
 	if namespace == "" {
 		namespace = "default"

@@ -3,25 +3,24 @@ package query
 import (
 	"context"
 	"kompare/kubernetes"
+	"kompare/kubernetes/dao"
 
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// TODO: to decide which fields to take
-type Namespace struct {
-}
-
-func ListNamespaces(client *kubernetes.Client) (*v1.NamespaceList, error) {
+// ListNamespaces lists namespaces inside a cluster.
+func ListNamespaces(client *kubernetes.Client) ([]dao.Namespace, error) {
 	result, err := client.Clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	// deployments := make([]Deployment, len(result.Items))
-	// for i, item := range result.Items {
-	// 	deployments[i] = Deployment{}
-	// }
+	namespaces := make([]dao.Namespace, len(result.Items))
+	for i, item := range result.Items {
+		namespaces[i] = dao.Namespace{
+			Name: item.Name,
+		}
+	}
 
-	return result, nil
+	return namespaces, nil
 }

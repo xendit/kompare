@@ -5,7 +5,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func (c *Client) SwitchContext(contextName string, kubeconfig *string) error {
+// SwitchContext switches the context of the Kubernetes client.
+func (c *Client) SwitchContext(contextName string) error {
 	// using `contextName` context in kubeConfig
 	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{ExplicitPath: c.KubeconfigPath},

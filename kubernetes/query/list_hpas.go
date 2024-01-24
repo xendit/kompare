@@ -8,10 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// TODO: to decide which fields to take
-type HorizontalPodAutoscaler struct {
-}
-
+// ListHorizontalPodAutoscalers lists horizontal pod autoscalers in a namespace.
 func ListHorizontalPodAutoscalers(client *kubernetes.Client, namespace string) (*autoscalingv1.HorizontalPodAutoscalerList, error) {
 	if namespace == "" {
 		namespace = "default"

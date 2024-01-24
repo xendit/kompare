@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"kompare/kubernetes"
+	"kompare/kubernetes/diff"
 	"kompare/kubernetes/query"
 	"os"
 	"path"
@@ -20,20 +21,21 @@ func main() {
 		panic(err)
 	}
 
-	namespaces, err := query.ListNamespaces(client)
+	client.SwitchContext("trident-staging-0")
+	namespacesSource, err := query.ListNamespaces(client)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(len(namespacesSource))
+
+	client.SwitchContext("trident-playground-0")
+	namespacesTarget, err := query.ListNamespaces(client)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, ns := range namespaces.Items {
-		fmt.Printf("namespace: %s\n---\n", ns.Name)
-		deployments, err := query.ListDeployments(client, ns.Name)
-		if err != nil {
-			panic(err)
-		}
-		for _, d := range deployments.Items {
-			fmt.Printf("- %s\n", d.Name)
-		}
-	}
+	diffInSource, diffInTarget := diff.GetNamespaceDiffByName(namespacesSource, namespacesTarget)
+	fmt.Println(diffInSource)
+	fmt.Println(diffInTarget)
 
 }

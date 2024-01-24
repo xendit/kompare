@@ -14,6 +14,7 @@ type Client struct {
 	ClusterContext string
 }
 
+// NewKubernetesClient creates a new Kubernetes client.
 func NewKubernetesClient(kubeconfigPath string) (*Client, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
 	if err != nil {

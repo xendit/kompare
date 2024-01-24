@@ -6,11 +6,16 @@ import (
 	v1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
-	networkingv1 "k8s.io/api/networking/v1"
+
+	// networkingv1 "k8s.io/api/networking/v1"
+	// traefikv1alpha1 "github.com/traefik/traefik/v3/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
+	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 
 	Corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // ListNameSpaces retrieves a list of Kubernetes namespaces.
@@ -77,21 +82,43 @@ func ListCronJobs(clientset *kubernetes.Clientset, nameSpace string) (*batchv1.C
 	return listCronJobs, nil
 }
 
-// ListIngressRoutes retrieves a list of Ingresses in the specified namespace.
+// ListCRDs retrieves a list of CRDs in the specified namespace.
 // Parameters:
-// - clientset: The Kubernetes clientset used to make the API call.
+// - kubeconfig: The Kubernetes client config used to make the API call.
 // - nameSpace: The namespace in which to list the Ingresses.
 // Returns:
 // - (*networkingv1.IngressList): A list of Ingresses.
 // - (error): An error if any occurred during the API call.
-func ListIngressRoutes(clientset *kubernetes.Clientset, nameSpace string) (*networkingv1.IngressList, error) {
-	listIngress, err := clientset.NetworkingV1().Ingresses(nameSpace).List(context.TODO(), metav1.ListOptions{})
+func ListCRDs(kubeconfig string, nameSpace string) (*apiextensionv1.CustomResourceDefinitionList, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	kubeClient, err := apiextension.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	listIngress, err := kubeClient.ApiextensionsV1().CustomResourceDefinitions().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return listIngress, nil
 }
 
+// func ListIngressRoutes(dynamicClientset *dynamic.DynamicClient, nameSpace string) (*networkingv1.IngressList, error) {
+// 	// listIngress, err := clientset.NetworkingV1().Ingresses(nameSpace).List(context.TODO(), metav1.ListOptions{})
+
+// 	crds := dynamicClientset.Resource().Get(context.TODO(),, metav1.ListOptions{})
+// 	// listIngress := &traefikv1alpha1.IngressRouteList{}
+// 	// traefikv1alpha1
+
+//		if err != nil {
+//			return nil, err
+//		}
+//		return listIngress, nil
+//	}
+//
 // ListServices retrieves a list of Services in the specified namespace.
 // Parameters:
 // - clientset: The Kubernetes clientset used to make the API call.

@@ -39,6 +39,6 @@ func main() {
 	// 	// compare.IterateDeploymentsSimpleDiff(deploymentListOnSource, deploymentListOnTarget)
 	// 	compare.DeepDeploySourceTargetCompare(deploymentListOnSource, deploymentListOnTarget)
 	// }
-	fmt.Println(query.ListCRDs(configFile, "default"))
+	fmt.Println(query.ListCRDs(configFile))
 
 }

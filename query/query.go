@@ -87,9 +87,9 @@ func ListCronJobs(clientset *kubernetes.Clientset, nameSpace string) (*batchv1.C
 // - kubeconfig: The Kubernetes client config used to make the API call.
 // - nameSpace: The namespace in which to list the Ingresses.
 // Returns:
-// - (*networkingv1.IngressList): A list of Ingresses.
+// - (*apiextensionv1.CustomResourceDefinitionList): A list of CRDs.
 // - (error): An error if any occurred during the API call.
-func ListCRDs(kubeconfig string, nameSpace string) (*apiextensionv1.CustomResourceDefinitionList, error) {
+func ListCRDs(kubeconfig string) (*apiextensionv1.CustomResourceDefinitionList, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, err

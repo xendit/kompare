@@ -7,7 +7,7 @@ import (
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
 
-	// networkingv1 "k8s.io/api/networking/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	// traefikv1alpha1 "github.com/traefik/traefik/v3/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -106,19 +106,21 @@ func ListCRDs(kubeconfig string) (*apiextensionv1.CustomResourceDefinitionList, 
 	return listIngress, nil
 }
 
-// func ListIngressRoutes(dynamicClientset *dynamic.DynamicClient, nameSpace string) (*networkingv1.IngressList, error) {
-// 	// listIngress, err := clientset.NetworkingV1().Ingresses(nameSpace).List(context.TODO(), metav1.ListOptions{})
+// ListIngresses retrieves a list of Ingresses in the specified namespace.
+// Parameters:
+// - clientset: The Kubernetes clientset used to make the API call.
+// - nameSpace: The namespace in which to list the Services.
+// Returns:
+// - (*networkingv1.IngressList): A list of Services.
+// - (error): An error if any occurred during the API call.
+func ListIngressRoutes(clientset *kubernetes.Clientset, nameSpace string) (*networkingv1.IngressList, error) {
+	listIngress, err := clientset.NetworkingV1().Ingresses(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return listIngress, nil
+}
 
-// 	crds := dynamicClientset.Resource().Get(context.TODO(),, metav1.ListOptions{})
-// 	// listIngress := &traefikv1alpha1.IngressRouteList{}
-// 	// traefikv1alpha1
-
-//		if err != nil {
-//			return nil, err
-//		}
-//		return listIngress, nil
-//	}
-//
 // ListServices retrieves a list of Services in the specified namespace.
 // Parameters:
 // - clientset: The Kubernetes clientset used to make the API call.
@@ -133,3 +135,36 @@ func ListServices(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.Se
 	}
 	return listServices, nil
 }
+
+// Get Config Maps list.
+func ListConfigMaps(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ConfigMapList, error) {
+	ListConfigMaps, err := clientset.CoreV1().ConfigMaps(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListConfigMaps, nil
+}
+
+// Get Secrets list.
+func ListSecrets(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.SecretList, error) {
+	ListSercrets, err := clientset.CoreV1().Secrets(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListSercrets, nil
+}
+
+// Get Service Accounts list.
+func ListServiceAccounts(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ServiceAccountList, error) {
+	ListServiceAccounts, err := clientset.CoreV1().ServiceAccounts(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListServiceAccounts, nil
+}
+
+// TODO
+// roles
+// clusterroles
+// rolebindings
+// clusterrolebindings

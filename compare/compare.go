@@ -233,127 +233,6 @@ func getName(item interface{}) string {
 	return ""
 }
 
-// // Function to deep compare two Kubernetes objects based on a list of fields
-// func DeepCompare(sourceObject, targetObject interface{}, fieldsToCompare []string) []DiffWithName {
-// 	// var tmpDiff DiffWithName
-// 	var diffSourceTarget []DiffWithName
-
-// 	sourceValue := reflect.ValueOf(sourceObject)
-// 	targetValue := reflect.ValueOf(targetObject)
-
-// 	// Dereference pointers
-// 	if sourceValue.Kind() == reflect.Ptr {
-// 		sourceValue = sourceValue.Elem()
-// 	}
-// 	if targetValue.Kind() == reflect.Ptr {
-// 		targetValue = targetValue.Elem()
-// 	}
-
-// 	// Check if both objects are of the same type
-// 	if sourceValue.Type() != targetValue.Type() {
-// 		fmt.Println("Objects are of different types, cannot compare.")
-// 		return diffSourceTarget
-// 	}
-
-// 	// Assert the type and retrieve 'Items' field if present
-// 	itemsSource, okSource := assertTypeAndItems(sourceObject)
-// 	itemsTarget, okTarget := assertTypeAndItems(targetObject)
-
-// 	if !okSource || !okTarget {
-// 		fmt.Println("'Items' field not found in source or target object.")
-// 		return diffSourceTarget
-// 	}
-
-// 	// Iterate over 'Items'
-// 	for i := 0; i < itemsSource.Len(); i++ {
-// 		sourceItem := itemsSource.Index(i)
-// 		targetItem := itemsTarget.Index(i)
-
-// 		// Loop through the fields to compare
-// 		for _, field := range fieldsToCompare {
-// 			// Split field path into individual parts
-// 			fieldParts := strings.Split(field, ".")
-
-// 			// Traverse the nested structure
-// 			currentSourceValue := reflect.ValueOf(sourceItem)
-// 			currentTargetValue := reflect.ValueOf(targetItem)
-
-// 			for _, part := range fieldParts {
-// 				// Dereference pointers in the nested structure
-// 				if currentSourceValue.Kind() == reflect.Ptr {
-// 					currentSourceValue = currentSourceValue.Elem()
-// 				}
-// 				if currentTargetValue.Kind() == reflect.Ptr {
-// 					currentTargetValue = currentTargetValue.Elem()
-// 				}
-
-// 				// Access the nested field
-// 				currentSourceValue = currentSourceValue.FieldByName(part)
-// 				currentTargetValue = currentTargetValue.FieldByName(part)
-
-// 				// // Check if the field is valid
-// 				// if !currentSourceValue.IsValid() || !currentTargetValue.IsValid() {
-// 				// 	fmt.Printf("Field %s not found in the source or target object.\n", field)
-// 				// 	break // Continue with the next iteration
-// 				// }
-
-// 				// Check if the field is a map and handle it accordingly
-// 				if currentSourceValue.Kind() == reflect.Map {
-// 					// Assuming we want to compare maps directly
-// 					// if diff := deep.Equal(currentSourceValue.(itemsSource), currentTargetValue.(currentTargetValue)); diff != nil {
-// 					// 	fmt.Printf("%s differs between source and target objects:\n", field)
-// 					// 	fmt.Println(diff)
-
-// 					// 	tmpDiff.Name = fmt.Sprintf("%v", currentSourceValue.FieldByName("Name").Interface())           // Assuming there's a "Name" field
-// 					// 	tmpDiff.Namespace = fmt.Sprintf("%v", currentSourceValue.FieldByName("Namespace").Interface()) // Assuming there's a "Namespace" field
-// 					// 	tmpDiff.Diff = diff
-// 					// 	diffSourceTarget = append(diffSourceTarget, tmpDiff)
-// 					// }
-// 					break // No need to go deeper for maps
-// 				}
-// 			}
-
-// 			// Deep compare the field if it's not a map
-// 			if currentSourceValue.Kind() != reflect.Map {
-// 				// if diff := deep.Equal(currentSourceValue.(itemsSource), currentTargetValue.(itemsSource)); diff != nil {
-// 				// 	fmt.Printf("%s differs between source and target objects:\n", field)
-// 				// 	fmt.Println(diff)
-
-// 				// 	tmpDiff.Name = fmt.Sprintf("%v", currentSourceValue.FieldByName("Name").Interface())           // Assuming there's a "Name" field
-// 				// 	tmpDiff.Namespace = fmt.Sprintf("%v", currentSourceValue.FieldByName("Namespace").Interface()) // Assuming there's a "Namespace" field
-// 				// 	tmpDiff.Diff = diff
-// 				// 	diffSourceTarget = append(diffSourceTarget, tmpDiff)
-// 				// }
-// 			}
-// 		}
-// 	}
-
-// 	return diffSourceTarget
-// }
-
-// // Rest of the code remains the same
-
-// // Function to assert the type and retrieve 'Items' field if present
-// func assertTypeAndItems(obj interface{}) (reflect.Value, bool) {
-// 	if itemsField, ok := assertTypeAndField(obj, "Items"); ok {
-// 		return itemsField, true
-// 	}
-// 	return reflect.Value{}, false
-// }
-
-// // Function to assert the type and retrieve a specific field if present
-// func assertTypeAndField(obj interface{}, fieldName string) (reflect.Value, bool) {
-// 	typeName, _ := getTypeInfo(obj)
-// 	if assertionFunc, ok := typeAssertions[typeName]; ok {
-// 		if success, value := assertionFunc(obj); success {
-// 			// Dereference pointers in the nested structure
-// 			field := reflect.ValueOf(value).Elem().FieldByName(fieldName)
-// 			return field, field.IsValid()
-// 		}
-// 	}
-// 	return reflect.Value{}, false
-// }
-
 // compareDeploymentsByName compares two lists of deployments by name and returns a list of names that exist in the first list but not in the second list.
 //
 // Parameters:
@@ -444,9 +323,6 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 	_, sourceObject := getTypeInfo(sourceInterface)
 	_, targetObject := getTypeInfo(targetInterface)
 
-	// fmt.Printf("Source Type: %s\n", sourceTypeName)
-	// fmt.Printf("Target Type: %s\n", targetTypeName)
-
 	sourceItemsField := reflect.ValueOf(sourceObject).Elem().FieldByName("Items")
 	targetItemsField := reflect.ValueOf(targetObject).Elem().FieldByName("Items")
 
@@ -464,8 +340,6 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 				sourceName, _ := getNestedFieldValue(reflect.ValueOf(sourceItem), []string{"Name"})
 				targetName, _ := getNestedFieldValue(reflect.ValueOf(targetItem), []string{"Name"})
 				sourceNamespace, _ := getNestedFieldValue(reflect.ValueOf(sourceItem), []string{"Namespace"})
-				// targetNamespace, _ := getNestedFieldValue(reflect.ValueOf(targetItem), []string{"Namespace"})
-
 				if sourceName.String() == targetName.String() {
 					for _, v := range DiffCriteria {
 						sourceDiffCriteriaField, err := getNestedFieldValue(reflect.ValueOf(sourceItem), strings.Split(v, "."))

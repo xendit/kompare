@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/rest"
@@ -8,10 +9,11 @@ import (
 )
 
 type Client struct {
-	Clientset      *kubernetes.Clientset
-	Config         *rest.Config
-	KubeconfigPath string
-	ClusterContext string
+	Clientset             *kubernetes.Clientset
+	APIExtensionClientset *apiextension.Clientset
+	Config                *rest.Config
+	KubeconfigPath        string
+	CurrentContext        string
 }
 
 // NewKubernetesClient creates a new Kubernetes client.
@@ -26,10 +28,16 @@ func NewKubernetesClient(kubeconfigPath string) (*Client, error) {
 		return nil, err
 	}
 
+	apiExtensionClientset, err := apiextension.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Client{
-		Clientset:      clientset,
-		Config:         config,
-		KubeconfigPath: kubeconfigPath,
-		ClusterContext: "",
+		Clientset:             clientset,
+		APIExtensionClientset: apiExtensionClientset,
+		Config:                config,
+		KubeconfigPath:        kubeconfigPath,
+		CurrentContext:        "",
 	}, nil
 }

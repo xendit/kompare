@@ -19,10 +19,5 @@ func ListDeployments(client *kubernetes.Client, namespace string) (*v1.Deploymen
 		return nil, err
 	}
 
-	// deployments := make([]Deployment, len(result.Items))
-	// for i, item := range result.Items {
-	// 	deployments[i] = Deployment{}
-	// }
-
 	return result, nil
 }

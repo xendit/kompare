@@ -26,7 +26,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(len(namespacesSource))
 
 	client.SwitchContext("trident-playground-0")
 	namespacesTarget, err := query.ListNamespaces(client)
@@ -34,8 +33,7 @@ func main() {
 		panic(err)
 	}
 
-	diffInSource, diffInTarget := diff.GetNamespaceDiffByName(namespacesSource, namespacesTarget)
-	fmt.Println(diffInSource)
-	fmt.Println(diffInTarget)
+	namespaceDiff := diff.GetNamespaceDiffByName(namespacesSource, namespacesTarget)
+	fmt.Println(namespaceDiff)
 
 }

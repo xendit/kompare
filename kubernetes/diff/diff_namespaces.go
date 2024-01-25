@@ -1,46 +1,54 @@
 package diff
 
 import (
-	"kompare/kubernetes/dao"
+	v1 "k8s.io/api/core/v1"
 )
 
-func IsNamespaceCountEqual(sourceNamespaces, targetNamespaces []dao.Namespace) bool {
-	return len(sourceNamespaces) == len(targetNamespaces)
+type NamespaceDiff struct {
+	OnlyInSource []string
+	OnlyInTarget []string
 }
 
-func GetNamespaceDiffByName(sourceNamespaces, targetNamespaces []dao.Namespace) ([]dao.Namespace, []dao.Namespace) {
+func IsNamespaceCountEqual(sourceNamespaces, targetNamespaces *v1.NamespaceList) bool {
+	return len(sourceNamespaces.Items) == len(targetNamespaces.Items)
+}
+
+func GetNamespaceDiffByName(sourceNamespaces, targetNamespaces *v1.NamespaceList) *NamespaceDiff {
 	if IsNamespaceCountEqual(sourceNamespaces, targetNamespaces) {
-		return nil, nil
+		return nil
 	}
 
-	onlyInSource := make([]dao.Namespace, 0)
-	onlyInTarget := make([]dao.Namespace, 0)
+	onlyInSource := make([]string, 0)
+	onlyInTarget := make([]string, 0)
 
-	for _, sourceNamespace := range sourceNamespaces {
+	for _, sourceNamespace := range sourceNamespaces.Items {
 		found := false
-		for _, targetNamespace := range targetNamespaces {
+		for _, targetNamespace := range targetNamespaces.Items {
 			if sourceNamespace.Name == targetNamespace.Name {
 				found = true
 				break
 			}
 		}
 		if !found {
-			onlyInSource = append(onlyInSource, sourceNamespace)
+			onlyInSource = append(onlyInSource, sourceNamespace.Name)
 		}
 	}
 
-	for _, targetNamespace := range targetNamespaces {
+	for _, targetNamespace := range targetNamespaces.Items {
 		found := false
-		for _, sourceNamespace := range sourceNamespaces {
+		for _, sourceNamespace := range sourceNamespaces.Items {
 			if targetNamespace.Name == sourceNamespace.Name {
 				found = true
 				break
 			}
 		}
 		if !found {
-			onlyInTarget = append(onlyInTarget, targetNamespace)
+			onlyInTarget = append(onlyInTarget, targetNamespace.Name)
 		}
 	}
 
-	return onlyInSource, onlyInTarget
+	return &NamespaceDiff{
+		OnlyInSource: onlyInSource,
+		OnlyInTarget: onlyInTarget,
+	}
 }

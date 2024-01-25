@@ -126,10 +126,10 @@ func ListCRDs(kubeconfig string) (*apiextensionv1.CustomResourceDefinitionList, 
 // Returns:
 // - (*Corev1.ServiceList): A list of Services.
 // - (error): An error if any occurred during the API call.
-func ListServices(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ServiceList, error) {
-	listServices, err := clientset.CoreV1().Services(nameSpace).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return listServices, nil
-}
+// func ListServices(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ServiceList, error) {
+// 	listServices, err := clientset.CoreV1().Services(nameSpace).List(context.TODO(), metav1.ListOptions{})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return listServices, nil
+// }

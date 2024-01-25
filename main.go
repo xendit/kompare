@@ -64,7 +64,10 @@ func main() {
 			return
 		}
 		fieldsToCompre := []string{"Spec.Template.Spec"}
-		fmt.Println(compare.DeepCompare(deploymentListOnSource, deploymentListOnTarget, fieldsToCompre))
+		results := compare.DeepCompare(deploymentListOnSource, deploymentListOnTarget, fieldsToCompre)
+		if len(results) > 0 {
+			fmt.Println("Diff:", results)
+		}
 		// 	// compare.IterateDeploymentsSimpleDiff(deploymentListOnSource, deploymentListOnTarget)
 		// 	compare.DeepDeploySourceTargetCompare(deploymentListOnSource, deploymentListOnTarget)
 		// }

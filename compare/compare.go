@@ -335,7 +335,6 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 			// Iterate over targetItems
 			for j := 0; j < targetItemsField.Len(); j++ {
 				targetItem := targetItemsField.Index(j).Interface()
-
 				// Compare 'Name' fields
 				sourceName, _ := getNestedFieldValue(reflect.ValueOf(sourceItem), []string{"Name"})
 				targetName, _ := getNestedFieldValue(reflect.ValueOf(targetItem), []string{"Name"})
@@ -347,18 +346,15 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 							fmt.Printf("Error accessing field: %v\n", err)
 							continue
 						}
-
 						targetDiffCriteriaField, err := getNestedFieldValue(reflect.ValueOf(targetItem), strings.Split(v, "."))
 						if err != nil {
 							fmt.Printf("Error accessing field: %v\n", err)
 							continue
 						}
-
-						x := deep.Equal(sourceDiffCriteriaField.Interface(), targetDiffCriteriaField.Interface())
-
+						xdiff := deep.Equal(sourceDiffCriteriaField.Interface(), targetDiffCriteriaField.Interface())
 						tmpDiff.Name = targetName.String()
 						tmpDiff.Namespace = sourceNamespace.String()
-						tmpDiff.Diff = x
+						tmpDiff.Diff = xdiff
 						diffSourceTarget = append(diffSourceTarget, tmpDiff)
 					}
 				}

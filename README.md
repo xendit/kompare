@@ -62,8 +62,22 @@ Add guides about the process of contributing to the service.
 You can link reading materials related to the service on this section. This may include but not limited to the API documentation, Confluence document, articles, etc.
 
 # TODO
-1. Traefik routes. They are not standard k8s objects. (Abel)
-2. Argo rollouts. They are not standard k8s objects.
-3. How will we feed configs to the program; e.g.: kubeconfig.
-4. Create tests cases (Matthew)
-
+// compare globally:
+// - DRDs (criteria?) <- Alpha done.
+// - Same Namespaces exist in both clusters. <- Alpha done.
+// - roles (criteria?)
+// - clusterroles (criteria?)
+// - rolebindings (criteria?)
+// - clusterrolebindingss (criteria?)
+// Compare per namespace
+// - Deployment (Spec.Template.Spec & ?) <- Alpha done.
+// - Services (Spec, Metadata.Annotations, Metadata.Labels ) <- Alpha done.
+// - Service accounts (Metadata.Annotations, Metadata.Labels) <- Alpha done.
+// - Secrets (Type, Data?) <- Alpha done.
+// - Ingress (Needed?)
+// Features (goot to have)
+// - Verbose compare vs simple comparison
+// - save comparison to file.
+// - Compare file to target again.
+// - Service specific particulars to compare; e.g.: when a type of object can have multiple ways
+// of defining structure and we need to check some of those that are not always present.

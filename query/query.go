@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"kompare/connect"
 
 	v1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
@@ -15,7 +16,6 @@ import (
 	Corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // ListNameSpaces retrieves a list of Kubernetes namespaces.
@@ -89,8 +89,8 @@ func ListCronJobs(clientset *kubernetes.Clientset, nameSpace string) (*batchv1.C
 // Returns:
 // - (*apiextensionv1.CustomResourceDefinitionList): A list of CRDs.
 // - (error): An error if any occurred during the API call.
-func ListCRDs(kubeconfig string) (*apiextensionv1.CustomResourceDefinitionList, error) {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+func ListCRDs(ctx, kubeconfig string) (*apiextensionv1.CustomResourceDefinitionList, error) {
+	config, err := connect.BuildConfigWithContextFromFlags(ctx, kubeconfig)
 	if err != nil {
 		return nil, err
 	}

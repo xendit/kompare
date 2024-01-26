@@ -75,7 +75,7 @@ func assertType(typeName string, obj interface{}) (bool, interface{}) {
 	}
 }
 
-func getTypeInfo(obj interface{}) (string, interface{}) {
+func GetTypeInfo(obj interface{}) (string, interface{}) {
 	typeName := "unknown"
 	var objValue interface{}
 
@@ -92,7 +92,7 @@ func getTypeInfo(obj interface{}) (string, interface{}) {
 
 func GenericCountListElements(obj interface{}) int {
 	// Check the type of the object
-	_, objValue := getTypeInfo(obj)
+	_, objValue := GetTypeInfo(obj)
 
 	// Check if it's a list type with an "Items" field
 	if hasItemsField(objValue) {
@@ -318,14 +318,11 @@ func getNestedFieldValue(obj reflect.Value, fieldNames []string) (reflect.Value,
 func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []string) []DiffWithName {
 	var tmpDiff DiffWithName
 	var diffSourceTarget []DiffWithName
-
 	// Get type information for source and target
-	_, sourceObject := getTypeInfo(sourceInterface)
-	_, targetObject := getTypeInfo(targetInterface)
-
+	_, sourceObject := GetTypeInfo(sourceInterface)
+	_, targetObject := GetTypeInfo(targetInterface)
 	sourceItemsField := reflect.ValueOf(sourceObject).Elem().FieldByName("Items")
 	targetItemsField := reflect.ValueOf(targetObject).Elem().FieldByName("Items")
-
 	// Check if 'Items' is a slice in both source and target objects
 	if sourceItemsField.Kind() == reflect.Slice && targetItemsField.Kind() == reflect.Slice {
 		// Iterate over sourceItems
@@ -365,4 +362,56 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 	}
 
 	return diffSourceTarget
+}
+
+func ShowResourceComparison(sourceResource, targetResource interface{}, diffCriteria []string) ([]DiffWithName, error) {
+	var TheDiff []DiffWithName
+	lensourceResource := GenericCountListElements(sourceResource)
+	lentargetResource := GenericCountListElements(targetResource)
+	resourceType := tools.ConvertTypeStringToHumanReadable(sourceResource)
+
+	messageheading := "* These two cluster do not have the same number of " + resourceType + ", please check it manually! *"
+	lenMessageheading := len(messageheading)
+	if lentargetResource != lensourceResource {
+
+		fmt.Println(strings.Repeat("*", lenMessageheading))
+		fmt.Println(messageheading)
+		fmt.Println(strings.Repeat("*", lenMessageheading))
+		CompareNumbersGenericOutput(lensourceResource, lentargetResource, targetResource)
+	}
+	fmt.Println(strings.Repeat("*", lenMessageheading))
+	sourceMessageTemplate := "- First cluster has %s: %s, but it's not in the second cluster\n"
+	resultStringsSvT := CompareByName(sourceResource, targetResource, sourceMessageTemplate)
+	if len(resultStringsSvT) > 0 {
+		fmt.Println(strings.Repeat("*", lenMessageheading))
+	} else {
+		fmt.Println("Done compering source cluster versus target cluster's ", resourceType)
+	}
+	targetmessageTemplate := "- Second cluster has %s: %s, but it's not in the first cluster\n"
+	resultStringsTvS := CompareByName(targetResource, sourceResource, targetmessageTemplate)
+	if len(resultStringsTvS) > 0 {
+		fmt.Println(strings.Repeat("*", lenMessageheading))
+	} else {
+		fmt.Println("Done compering target cluster versus source cluster's ", resourceType)
+	}
+	DeepCompare(targetResource, sourceResource, diffCriteria)
+	TheDiff = DeepCompare(targetResource, sourceResource, diffCriteria)
+	return TheDiff, nil
+}
+
+func FormatDiffHumanReadable(differences []DiffWithName) string {
+	var formattedDiff strings.Builder
+	for _, diff := range differences {
+		if len(diff.Diff) != 0 {
+			formattedDiff.WriteString(fmt.Sprintf("Object Name: %s\n", diff.Name))
+			formattedDiff.WriteString(fmt.Sprintf("Namespace: %s\n", diff.Namespace))
+
+			formattedDiff.WriteString("Differences:\n")
+			for _, d := range diff.Diff {
+				formattedDiff.WriteString(fmt.Sprintf("- %s\n", d))
+			}
+			formattedDiff.WriteString("\n")
+		}
+	}
+	return formattedDiff.String()
 }

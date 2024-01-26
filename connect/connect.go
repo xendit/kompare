@@ -56,7 +56,7 @@ func ConnectNow(a_config *string) (*kubernetes.Clientset, error) {
 // - (*kubernetes.Clientset): The created Kubernetes clientset.
 // - (error): An error if any occurred during the clientset creation process.
 func ContextSwitch(contextName string, kubeconfig *string) (*kubernetes.Clientset, error) {
-	config, err := buildConfigWithContextFromFlags(contextName, *kubeconfig)
+	config, err := BuildConfigWithContextFromFlags(contextName, *kubeconfig)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func ContextSwitch(contextName string, kubeconfig *string) (*kubernetes.Clientse
 // Returns:
 // - (*rest.Config): The built Kubernetes config.
 // - (error): An error if any occurred during the config building process.
-func buildConfigWithContextFromFlags(context string, kubeconfigPath string) (*rest.Config, error) {
+func BuildConfigWithContextFromFlags(context string, kubeconfigPath string) (*rest.Config, error) {
 	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
 		&clientcmd.ConfigOverrides{

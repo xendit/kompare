@@ -3,6 +3,7 @@ module kompare
 go 1.21.6
 
 require (
+	github.com/akamensky/argparse v1.4.0
 	github.com/go-test/deep v1.1.0
 	k8s.io/api v0.29.1
 	k8s.io/apiextensions-apiserver v0.26.3

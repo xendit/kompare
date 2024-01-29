@@ -82,3 +82,17 @@ func BuildConfigWithContextFromFlags(context string, kubeconfigPath string) (*re
 			CurrentContext: context,
 		}).ClientConfig()
 }
+
+func ConnectToSource(strSourceClusterContext string, configFile *string) (*kubernetes.Clientset, error) {
+	var clientsetToSource *kubernetes.Clientset
+	var err error
+	if strSourceClusterContext != "" {
+		clientsetToSource, err = ContextSwitch(strSourceClusterContext, configFile)
+	} else {
+		clientsetToSource, err = ConnectNow(configFile)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return clientsetToSource, nil
+}

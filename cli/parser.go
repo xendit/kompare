@@ -8,7 +8,13 @@ import (
 	"github.com/akamensky/argparse"
 )
 
-func PaserReader() (*string, *string, *string, *string, *bool, error) {
+type ArgumentsReceived struct {
+	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName *string
+	VerboseDiffs                                                              *bool
+	Err                                                                       error
+}
+
+func PaserReader() ArgumentsReceived {
 	// Create new parser object
 	parser := argparse.NewParser("print", "Prints provided string to stdout")
 	kubeconfigFile := parser.String("c", "conf", &argparse.Options{Required: false, Help: "Path to the clusters kubeconfig; assume ~/.kube/config if not provided"})
@@ -23,29 +29,35 @@ func PaserReader() (*string, *string, *string, *string, *bool, error) {
 		// In case of error print error and print usage
 		// This can also be done by passing -h or --help flags
 		fmt.Print(parser.Usage(err))
-		return nil, nil, nil, nil, nil, err
+		return ArgumentsReceived{KubeconfigFile: nil, SourceClusterContext: nil, TargetClusterContext: nil, NamespaceName: nil, VerboseDiffs: nil, Err: err}
 	}
-	return kubeconfigFile, sourceClusterContext, targetClusterContext, namespaceName, verboseDiffs, err
+	return ArgumentsReceived{
+		KubeconfigFile:       kubeconfigFile,
+		SourceClusterContext: sourceClusterContext,
+		TargetClusterContext: targetClusterContext,
+		NamespaceName:        namespaceName,
+		VerboseDiffs:         verboseDiffs,
+		Err:                  err}
 
 }
 
-func ValidateParametersFromParserArgs(kubeconfigFile, sourceClusterContext, targetClusterContext, namespaceName *string, verboseDiffs *bool) (string, string, string, string, *bool, error) {
+func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) (string, string, string, string, *bool, error) {
 	var strSourceClusterContext, strTargetClusterContext, strNamespaceName string
-	if *sourceClusterContext != "" {
-		strSourceClusterContext = *sourceClusterContext
+	if *TheArgs.SourceClusterContext != "" {
+		strSourceClusterContext = *TheArgs.SourceClusterContext
 	} else {
 		strSourceClusterContext = ""
 	}
-	strTargetClusterContext = *targetClusterContext
-	strNamespaceName = *namespaceName
+	strTargetClusterContext = *TheArgs.TargetClusterContext
+	strNamespaceName = *TheArgs.NamespaceName
 	configFile := ""
-	if *kubeconfigFile != "" {
-		configFile = *kubeconfigFile
+	if *TheArgs.KubeconfigFile != "" {
+		configFile = *TheArgs.KubeconfigFile
 	} else {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
 			fmt.Printf("Error getting the home dir: %v\n", err)
-			return "", "", "", "", verboseDiffs, err
+			return "", "", "", "", TheArgs.VerboseDiffs, TheArgs.Err
 		}
 		configFile = path.Join(homeDir, ".kube", "config")
 	}
@@ -53,5 +65,5 @@ func ValidateParametersFromParserArgs(kubeconfigFile, sourceClusterContext, targ
 		strNamespaceName = "default"
 	}
 
-	return configFile, strSourceClusterContext, strTargetClusterContext, strNamespaceName, verboseDiffs, nil
+	return configFile, strSourceClusterContext, strTargetClusterContext, strNamespaceName, TheArgs.VerboseDiffs, nil
 }

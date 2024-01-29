@@ -14,6 +14,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	Corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	RbacV1 "k8s.io/api/rbac/v1"
 	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
@@ -60,11 +61,22 @@ var typeAssertions = map[string]TypeAssertionFunc{
 		val, ok := obj.(*Corev1.ServiceAccountList)
 		return ok, val
 	},
-	// TODO cases also in queries need those.
-	// roles
-	// clusterroles
-	// rolebindings
-	// clusterrolebindings
+	"*RbacV1.RoleList": func(obj interface{}) (bool, interface{}) {
+		val, ok := obj.(*RbacV1.RoleList)
+		return ok, val
+	},
+	"*RbacV1.RoleBindingList": func(obj interface{}) (bool, interface{}) {
+		val, ok := obj.(*RbacV1.RoleBindingList)
+		return ok, val
+	},
+	"*RbacV1.ClusterRoleList": func(obj interface{}) (bool, interface{}) {
+		val, ok := obj.(*RbacV1.ClusterRoleList)
+		return ok, val
+	},
+	"*RbacV1.ClusterRoleBindingList": func(obj interface{}) (bool, interface{}) {
+		val, ok := obj.(*RbacV1.ClusterRoleBindingList)
+		return ok, val
+	},
 }
 
 func assertType(typeName string, obj interface{}) (bool, interface{}) {

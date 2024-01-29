@@ -14,6 +14,7 @@ import (
 	apiextension "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 
 	Corev1 "k8s.io/api/core/v1"
+	RbacV1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -39,7 +40,7 @@ func ListNameSpaces(clientset *kubernetes.Clientset) (*Corev1.NamespaceList, err
 // Returns:
 // - (*v1.DeploymentList): A list of Kubernetes deployments.
 // - (error): An error if any occurred during the API call.
-func ListK8sDeployments(clientset *kubernetes.Clientset, nameSpace string) (*v1.DeploymentList, error) {
+func ListDeployments(clientset *kubernetes.Clientset, nameSpace string) (*v1.DeploymentList, error) {
 	if nameSpace == "" {
 		nameSpace = "default"
 	}
@@ -99,11 +100,11 @@ func ListCRDs(ctx, kubeconfig string) (*apiextensionv1.CustomResourceDefinitionL
 		return nil, err
 	}
 
-	listIngress, err := kubeClient.ApiextensionsV1().CustomResourceDefinitions().List(context.TODO(), metav1.ListOptions{})
+	listCRDs, err := kubeClient.ApiextensionsV1().CustomResourceDefinitions().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
-	return listIngress, nil
+	return listCRDs, nil
 }
 
 // ListIngresses retrieves a list of Ingresses in the specified namespace.
@@ -165,6 +166,38 @@ func ListServiceAccounts(clientset *kubernetes.Clientset, nameSpace string) (*Co
 
 // TODO
 // roles
-// clusterroles
+func ListRoles(clientset *kubernetes.Clientset, nameSpace string) (*RbacV1.RoleList, error) {
+	Listroles, err := clientset.RbacV1().Roles(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return Listroles, nil
+}
+
 // rolebindings
+func ListRoleBindings(clientset *kubernetes.Clientset, nameSpace string) (*RbacV1.RoleBindingList, error) {
+	ListRoleBindings, err := clientset.RbacV1().RoleBindings(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListRoleBindings, nil
+}
+
+// clusterroles
+func ListClusterRoles(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleList, error) {
+	ListClusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListClusterRoles, nil
+}
+
 // clusterrolebindings
+// rolebindings
+func ListClusterRoleBindings(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleBindingList, error) {
+	ListClusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListClusterRoleBindings, nil
+}

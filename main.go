@@ -95,7 +95,7 @@ func main() {
 		// End Roles
 		// - Role Bindings
 		fmt.Println("Role Bindings (RBAC)")
-		compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+		compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 		fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
 		// End Role Bindings
 		fmt.Printf("... Done with all resources in ns: %s.\n", ns.Name)

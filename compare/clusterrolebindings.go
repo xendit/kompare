@@ -19,6 +19,6 @@ func CompareClusterRoleBindings(clientsetToSource, clientsetToTarget *kubernetes
 		fmt.Printf("Error getting cluster role list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Rules", "Name", "Annotations"}
+	diffCriteria := []string{"RoleRef", "Name", "Annotations"}
 	return CompareVerboseVSNonVerbose(sourceClusterRoleBindings, targetClusterRoleBindings, diffCriteria, boolverboseDiffs)
 }

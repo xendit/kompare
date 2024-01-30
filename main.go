@@ -9,6 +9,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 func main() {
@@ -59,7 +60,16 @@ func main() {
 		}
 		sourceNameSpace = nil
 	}
+	iterateNamespaces(sourceNameSpacesList, clientsetToSource, clientsetToTarget, TheArgs)
+	// - Ingress (Needed?)
+	// Features (goot to have)
+	// - save comparison to file.
+	// - Compare file to target again.
+	fmt.Println("Finished!")
 
+}
+
+func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
 	// Comparing resources per namespace (Namespaced resources).
 	for _, ns := range sourceNameSpacesList.Items {
 		fmt.Printf("Looping on NS: %s", ns.Name)
@@ -100,10 +110,4 @@ func main() {
 		// End Role Bindings
 		fmt.Printf("... Done with all resources in ns: %s.\n", ns.Name)
 	}
-	// - Ingress (Needed?)
-	// Features (goot to have)
-	// - save comparison to file.
-	// - Compare file to target again.
-	fmt.Println("Finished!")
-
 }

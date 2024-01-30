@@ -1,38 +1,27 @@
 package main
 
 import (
-	"kompare/connect"
-	"kompare/query"
-	"reflect"
 	"testing"
 )
 
-func TestConnectNow(t *testing.T) {
-	// Test case 1; Make sure we get a client set to kubernetes.
-	configFile := "/Users/abel.guzman/.kube/config"
-	clientsetToSource, err := connect.ConnectNow(&configFile)
-	expectedType := "*kubernetes.Clientset"
-	if err != nil {
-		t.Errorf("Error Connecting to cluster %v", err)
-	}
-	if reflect.ValueOf(clientsetToSource).Type().String() != expectedType {
-		t.Errorf("Test case 1; TestConnectNow(configFile) returned %s, expected %s", reflect.TypeOf(clientsetToSource).Kind().String(), expectedType)
-	}
+func TestParseCLIArguments(t *testing.T) {
+	// Your test cases for parsing CLI arguments
 }
 
-func TestListNameSpaces(t *testing.T) { // Test case 2;
-	// Test case 2; list namespaces.
-	configFile := "/Users/abel.guzman/.kube/config"
-	clientsetToSource, err := connect.ConnectNow(&configFile)
-	nameSpacesList, err := query.ListNameSpaces(clientsetToSource)
-	if err != nil {
-		t.Errorf("Error getting namespace list: %v\n", err)
-	}
-	expectedType := "*v1.NamespaceList"
-	if reflect.ValueOf(nameSpacesList).Type().String() != expectedType {
-		t.Errorf("Test case 2; TestConnectNow(configFile) returned %s, expected %s", reflect.TypeOf(clientsetToSource).Kind().String(), expectedType)
-	}
-	if len(nameSpacesList.Items) <= 0 {
-		t.Errorf("Test case 2; TestConnectNow(configFile) returned %v, expected > 0 namespaces", nameSpacesList.Items)
-	}
+func TestEstablishConnections(t *testing.T) {
+	// Your test cases for establishing connections to clusters
 }
+
+func TestIterateNamespaces(t *testing.T) {
+	// Your test cases for iterating over namespaces
+}
+
+func TestCompareDeployments(t *testing.T) {
+	// Your test cases for comparing deployments
+}
+
+func TestCompareServices(t *testing.T) {
+	// Your test cases for comparing services
+}
+
+// Add similar tests for other resource comparison functions

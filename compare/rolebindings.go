@@ -20,6 +20,6 @@ func CompareRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Client
 		fmt.Printf("Error getting role bindings list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"RoleRef", "Subjects", "Annotations"}
+	diffCriteria := []string{"RoleRef", "Subjects"}
 	return CompareVerboseVSNonVerbose(sourceRoleBindings, targetRoleBindings, diffCriteria, boolverboseDiffs)
 }

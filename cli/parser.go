@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"kompare/tools"
 	"os"
 	"path"
 
@@ -9,12 +10,13 @@ import (
 )
 
 type ArgumentsReceived struct {
-	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName *string
-	VerboseDiffs                                                              *bool
-	Err                                                                       error
+	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName, Include, Exclude *string
+	VerboseDiffs                                                                                *bool
+	Err                                                                                         error
 }
 type ArgumentsReceivedValidated struct {
 	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName string
+	Include, Exclude                                                          []string
 	VerboseDiffs                                                              bool
 	Err                                                                       error
 }
@@ -27,6 +29,8 @@ func PaserReader() ArgumentsReceivedValidated {
 	sourceClusterContext := parser.String("s", "src", &argparse.Options{Required: false, Help: "The Source cluster's context"})
 	targetClusterContext := parser.String("d", "dst", &argparse.Options{Required: true, Help: "*The target cluster's context (Required)"})
 	verboseDiffs := parser.Flag("v", "verbose", &argparse.Options{Help: "Just show me all the diffs too. Notice: the output might be LONG!"})
+	IncludeK8sObjects := parser.String("i", "include", &argparse.Options{Help: "List of kubernetes objects names to include, this should be an element or a comma separated list."})
+	Excludek8sObjects := parser.String("e", "exclude", &argparse.Options{Help: "List of kubernetes objects to include, this should be an element or a comma separated list."})
 	// pass namespace.
 	namespaceName := parser.String("n", "namespace", &argparse.Options{Help: "Namespace that needs to be copied. defaults to 'default' namespace"})
 	err := parser.Parse(os.Args)
@@ -34,13 +38,23 @@ func PaserReader() ArgumentsReceivedValidated {
 		// In case of error print error and print usage
 		// This can also be done by passing -h or --help flags
 		fmt.Print(parser.Usage(err))
-		return ArgumentsReceivedValidated{KubeconfigFile: "", SourceClusterContext: "", TargetClusterContext: "", NamespaceName: "", VerboseDiffs: *verboseDiffs, Err: err}
+		return ArgumentsReceivedValidated{
+			KubeconfigFile:       "",
+			SourceClusterContext: "",
+			TargetClusterContext: "",
+			NamespaceName:        "",
+			Include:              []string{""},
+			Exclude:              []string{""},
+			VerboseDiffs:         *verboseDiffs,
+			Err:                  err}
 	}
 	TheArgs := ArgumentsReceived{
 		KubeconfigFile:       kubeconfigFile,
 		SourceClusterContext: sourceClusterContext,
 		TargetClusterContext: targetClusterContext,
 		NamespaceName:        namespaceName,
+		Include:              IncludeK8sObjects,
+		Exclude:              Excludek8sObjects,
 		VerboseDiffs:         verboseDiffs,
 		Err:                  err}
 	ArgumentsReceivedValidated := ValidateParametersFromParserArgs(TheArgs)
@@ -67,13 +81,73 @@ func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceiv
 			return ArgumentsReceivedValidated{
 				KubeconfigFile: "", SourceClusterContext: "",
 				TargetClusterContext: "", NamespaceName: "",
+				Include: []string{""}, Exclude: []string{""},
 				VerboseDiffs: *TheArgs.VerboseDiffs, Err: nil}
 		}
 		configFile = path.Join(homeDir, ".kube", "config")
 	}
-
+	invalidInclude, includeStr := ValidateKubernetesObjects(tools.ParseCommaSeparateList(*TheArgs.Include))
+	invalidExclude, excludeStr := ValidateKubernetesObjects(tools.ParseCommaSeparateList(*TheArgs.Exclude))
+	if invalidInclude != nil {
+		fmt.Print("You passed some invalid kubernetes object to incldue as a parameter: ", invalidInclude)
+		fmt.Println(". The program will try to execute anyways and ignore this")
+	}
+	if invalidExclude != nil {
+		fmt.Println("You passed some invalid kubernetes object to exclude as a parameter: ", invalidInclude)
+		fmt.Println(". The program will try to execute anyways and ignore this")
+	}
 	return ArgumentsReceivedValidated{
-		KubeconfigFile: configFile, SourceClusterContext: strSourceClusterContext,
-		TargetClusterContext: strTargetClusterContext, NamespaceName: strNamespaceName,
-		VerboseDiffs: *TheArgs.VerboseDiffs, Err: nil}
+		KubeconfigFile:       configFile,
+		SourceClusterContext: strSourceClusterContext,
+		TargetClusterContext: strTargetClusterContext,
+		NamespaceName:        strNamespaceName,
+		Include:              includeStr,
+		Exclude:              excludeStr,
+		VerboseDiffs:         *TheArgs.VerboseDiffs,
+		Err:                  nil}
+}
+
+// ValidateKubernetesObjects validates the given list of Kubernetes object names
+// against a list of valid object names and their aliases
+// It returns two slices: invalidObjects and validObjects
+func ValidateKubernetesObjects(objects []string) ([]string, []string) {
+	validObjects := map[string][]string{
+		"deployment":         {"deployment", "deployments", "deploy"},
+		"ingress":            {"ingress", "ing"},
+		"service":            {"service", "svc", "services"},
+		"sa":                 {"sa", "serviceaccount", "serviceaccounts"},
+		"configmap":          {"configmap", "configmaps", "cm"},
+		"secret":             {"secret", "secrets"},
+		"namespace":          {"namespace", "ns", "namespaces"},
+		"role":               {"role", "roles"},
+		"rolebinding":        {"rolebinding", "rolebindings"},
+		"clusterrole":        {"clusterrole", "clusterroles"},
+		"clusterrolebinding": {"clusterrolebinding", "clusterrolebindings"},
+		"crd":                {"crd", "crds", "customresourcedefinition", "customresourcedefinitions"},
+		// Add more valid objects and their aliases as needed
+	}
+
+	var invalidObjects []string
+	var validObjectsStr []string
+
+	for _, obj := range objects {
+		found := false
+		for standardName, aliases := range validObjects {
+			for _, alias := range aliases {
+				if obj == alias {
+					found = true
+					validObjectsStr = append(validObjectsStr, standardName)
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+		if !found {
+			invalidObjects = append(invalidObjects, obj)
+		}
+	}
+
+	return invalidObjects, validObjectsStr
 }

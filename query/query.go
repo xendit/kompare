@@ -145,6 +145,13 @@ func ListConfigMaps(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.
 	}
 	return ListConfigMaps, nil
 }
+func ListConfigMapsGeneric(clientset *kubernetes.Clientset, nameSpace string) (interface{}, error) {
+	ListConfigMaps, err := clientset.CoreV1().ConfigMaps(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ListConfigMaps, nil
+}
 
 // Get Secrets list.
 func ListSecrets(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.SecretList, error) {

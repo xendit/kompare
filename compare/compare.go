@@ -16,6 +16,7 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	RbacV1 "k8s.io/api/rbac/v1"
 	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 type TypeAssertionFunc func(interface{}) (bool, interface{})
@@ -359,4 +360,31 @@ func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList inter
 	} else {
 		return ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria)
 	}
+}
+
+func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, resourceGetter func(*kubernetes.Clientset, string) (interface{}, error), diffCriteria []string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+	var TheDiff []DiffWithName
+
+	sourceResources, err := resourceGetter(clientsetToSource, namespaceName)
+	if err != nil {
+		return TheDiff, fmt.Errorf("error getting source resources: %v", err)
+	}
+
+	targetResources, err := resourceGetter(clientsetToTarget, namespaceName)
+	if err != nil {
+		return TheDiff, fmt.Errorf("error getting target resources: %v", err)
+	}
+
+	// Type assertion to convert the interface{} to a slice of the specific type
+	sourceSlice, ok := sourceResources.([]interface{})
+	if !ok {
+		return TheDiff, fmt.Errorf("unexpected type for source resources")
+	}
+
+	targetSlice, ok := targetResources.([]interface{})
+	if !ok {
+		return TheDiff, fmt.Errorf("unexpected type for target resources")
+	}
+
+	return CompareVerboseVSNonVerbose(sourceSlice, targetSlice, diffCriteria, boolverboseDiffs)
 }

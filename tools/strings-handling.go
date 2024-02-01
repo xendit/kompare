@@ -36,3 +36,21 @@ func convertCamelCaseToSpaces(s string) string {
 	}
 	return result
 }
+
+func ParseCommaSeparateList(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+
+	return strings.Split(s, ",")
+}
+
+// IsInList checks if a string is present in a list of strings
+func IsInList(str string, list []string) bool {
+	for _, s := range list {
+		if str == s {
+			return true
+		}
+	}
+	return false
+}

@@ -26,8 +26,8 @@ func PaserReader() ArgumentsReceivedValidated {
 	parser := argparse.NewParser("print", "Prints provided string to stdout")
 	kubeconfigFile := parser.String("c", "conf", &argparse.Options{Required: false, Help: "Path to the clusters kubeconfig; assume ~/.kube/config if not provided"})
 	// Create string flag for clusters. Keep present that the order -f and -s is very important.
-	sourceClusterContext := parser.String("s", "src", &argparse.Options{Required: false, Help: "The Source cluster's context"})
-	targetClusterContext := parser.String("d", "dst", &argparse.Options{Required: true, Help: "*The target cluster's context (Required)"})
+	sourceClusterContext := parser.String("s", "src", &argparse.Options{Required: false, Help: "The Source cluster's context. Origin cluster in the comparison (LHS-left hand side)"})
+	targetClusterContext := parser.String("d", "dst", &argparse.Options{Required: true, Help: "*The target cluster's context (Required). Cluster used as destination or consequent (RHS - Right hand side)"})
 	verboseDiffs := parser.Flag("v", "verbose", &argparse.Options{Help: "Just show me all the diffs too. Notice: the output might be LONG!"})
 	IncludeK8sObjects := parser.String("i", "include", &argparse.Options{Help: "List of kubernetes objects names to include, this should be an element or a comma separated list."})
 	Excludek8sObjects := parser.String("e", "exclude", &argparse.Options{Help: "List of kubernetes objects to include, this should be an element or a comma separated list."})
@@ -64,12 +64,15 @@ func PaserReader() ArgumentsReceivedValidated {
 
 func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceivedValidated {
 	var strSourceClusterContext, strTargetClusterContext, strNamespaceName string
-	if *TheArgs.SourceClusterContext != "" {
-		strSourceClusterContext = *TheArgs.SourceClusterContext
-	} else {
-		strSourceClusterContext = ""
-	}
+	strSourceClusterContext = *TheArgs.SourceClusterContext
 	strTargetClusterContext = *TheArgs.TargetClusterContext
+	if strSourceClusterContext == "" {
+		fmt.Println("We will use current kubeconfig context as 'source cluster'.")
+	} else {
+		fmt.Printf("We will use %s kubeconfig context as 'source cluster' or 'origin cluster'.\n", strSourceClusterContext)
+	}
+	fmt.Printf("We will use %s kubeconfig context as 'target cluster'.\n", strTargetClusterContext)
+
 	strNamespaceName = *TheArgs.NamespaceName
 	configFile := ""
 	if *TheArgs.KubeconfigFile != "" {

@@ -41,7 +41,6 @@ func main() {
 		sourceNameSpacesList = &v1.NamespaceList{Items: []v1.Namespace{*sourceNameSpace}}
 	} else {
 		iterateGoglabObjects(clientsetToSource, clientsetToTarget, TheArgs)
-		fmt.Println("Done comparing Kuberentes global objects.")
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
 		if err != nil {
 			fmt.Printf("Error getting namespace list: %v\n", err)
@@ -87,7 +86,8 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 			// - Config Maps (criteria)
 			fmt.Println("Config Maps (CM)")
 			// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-			compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 			fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
 			// End Config maps
 			// - Roles
@@ -132,7 +132,8 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 			if tools.IsInList("configmap", TheArgs.Exclude) == false {
 				fmt.Println("Config Maps (CM)")
 				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
 			}
 			// End Config maps
@@ -182,7 +183,8 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 			if tools.IsInList("configmap", TheArgs.Include) == true {
 				fmt.Println("Config Maps (CM)")
 				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
 			}
 			// End Config maps
@@ -208,7 +210,9 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
 	// Comparing namespaces.
 	// notice that this fuction returns a diff to be used if we use tests instead of CLI
-	if TheArgs.Include != nil {
+	doSomething := false
+	if TheArgs.Include != nil &&
+		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Include) {
 		if tools.IsInList("namespace", TheArgs.Include) == true {
 			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
 		}
@@ -221,8 +225,10 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 		if tools.IsInList("clusterrolebinding", TheArgs.Include) == true {
 			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
 		}
+		doSomething = true
 	}
-	if TheArgs.Exclude != nil {
+	if TheArgs.Exclude != nil &&
+		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Exclude) {
 		if tools.IsInList("namespace", TheArgs.Exclude) == false {
 			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
 		}
@@ -235,12 +241,16 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 		if tools.IsInList("clusterrolebinding", TheArgs.Exclude) == false {
 			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
 		}
+		doSomething = true
 	}
 	if TheArgs.Include == nil && TheArgs.Exclude == nil {
 		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
 		compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, &TheArgs.VerboseDiffs)
 		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
 		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+		doSomething = true
 	}
-
+	if doSomething {
+		fmt.Println("Done comparing Kuberentes global objects.")
+	}
 }

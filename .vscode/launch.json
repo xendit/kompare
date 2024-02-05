@@ -12,11 +12,11 @@
             "program": "${fileDirname}",
             "console": "integratedTerminal",
             "args": [
-                "-d",
+                "-t",
                 "arn:aws:eks:ap-southeast-1:705506614808:cluster/trident-staging-0",
                 "-v",
                 "-i",
-                "deploy",
+                "cm,crd,x",
             ]
         }
     ]

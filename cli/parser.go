@@ -10,29 +10,28 @@ import (
 )
 
 type ArgumentsReceived struct {
-	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName, Include, Exclude *string
-	VerboseDiffs                                                                                *bool
-	Err                                                                                         error
+	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName, FiltersForObject, Include, Exclude *string
+	VerboseDiffs                                                                                                  *bool
+	Err                                                                                                           error
 }
 type ArgumentsReceivedValidated struct {
-	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName string
-	Include, Exclude                                                          []string
-	VerboseDiffs                                                              bool
-	Err                                                                       error
+	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName, FiltersForObject string
+	Include, Exclude                                                                            []string
+	VerboseDiffs                                                                                bool
+	Err                                                                                         error
 }
 
 func PaserReader() ArgumentsReceivedValidated {
 	// Create new parser object
 	parser := argparse.NewParser("print", "Prints provided string to stdout")
 	kubeconfigFile := parser.String("c", "conf", &argparse.Options{Required: false, Help: "Path to the clusters kubeconfig; assume ~/.kube/config if not provided"})
-	// Create string flag for clusters. Keep present that the order -f and -s is very important.
 	sourceClusterContext := parser.String("s", "src", &argparse.Options{Required: false, Help: "The Source cluster's context. Origin cluster in the comparison (LHS-left hand side)"})
 	targetClusterContext := parser.String("t", "target", &argparse.Options{Required: true, Help: "*The target cluster's context (Required). Cluster used as destination or consequent (RHS - Right hand side)"})
 	verboseDiffs := parser.Flag("v", "verbose", &argparse.Options{Help: "Just show me all the diffs too. Notice: the output might be LONG!"})
 	IncludeK8sObjects := parser.String("i", "include", &argparse.Options{Help: "List of kubernetes objects names to include, this should be an element or a comma separated list."})
 	Excludek8sObjects := parser.String("e", "exclude", &argparse.Options{Help: "List of kubernetes objects to include, this should be an element or a comma separated list."})
-	// pass namespace.
 	namespaceName := parser.String("n", "namespace", &argparse.Options{Help: "Namespace that needs to be copied. defaults to 'default' namespace"})
+	filtersForObject := parser.String("f", "filter", &argparse.Options{Help: "Filter what parts of the object I want to compare. must be used together with -i option to apply to that type of objects"})
 	err := parser.Parse(os.Args)
 	if err != nil {
 		// In case of error print error and print usage
@@ -43,6 +42,7 @@ func PaserReader() ArgumentsReceivedValidated {
 			SourceClusterContext: "",
 			TargetClusterContext: "",
 			NamespaceName:        "",
+			FiltersForObject:     "",
 			Include:              []string{""},
 			Exclude:              []string{""},
 			VerboseDiffs:         *verboseDiffs,
@@ -55,6 +55,7 @@ func PaserReader() ArgumentsReceivedValidated {
 		NamespaceName:        namespaceName,
 		Include:              IncludeK8sObjects,
 		Exclude:              Excludek8sObjects,
+		FiltersForObject:     filtersForObject,
 		VerboseDiffs:         verboseDiffs,
 		Err:                  err}
 	ArgumentsReceivedValidated := ValidateParametersFromParserArgs(TheArgs)
@@ -84,13 +85,15 @@ func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceiv
 			return ArgumentsReceivedValidated{
 				KubeconfigFile: "", SourceClusterContext: "",
 				TargetClusterContext: "", NamespaceName: "",
-				Include: []string{""}, Exclude: []string{""},
+				FiltersForObject: "",
+				Include:          []string{""}, Exclude: []string{""},
 				VerboseDiffs: *TheArgs.VerboseDiffs, Err: nil}
 		}
 		configFile = path.Join(homeDir, ".kube", "config")
 	}
 	invalidInclude, includeStr := ValidateKubernetesObjects(tools.ParseCommaSeparateList(*TheArgs.Include))
 	invalidExclude, excludeStr := ValidateKubernetesObjects(tools.ParseCommaSeparateList(*TheArgs.Exclude))
+
 	if invalidInclude != nil {
 		fmt.Print("You passed some invalid kubernetes object to incldue as a parameter: ", invalidInclude)
 		fmt.Println(". The program will try to execute anyways and ignore this")
@@ -104,6 +107,7 @@ func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceiv
 		SourceClusterContext: strSourceClusterContext,
 		TargetClusterContext: strTargetClusterContext,
 		NamespaceName:        strNamespaceName,
+		FiltersForObject:     *TheArgs.FiltersForObject,
 		Include:              includeStr,
 		Exclude:              excludeStr,
 		VerboseDiffs:         *TheArgs.VerboseDiffs,

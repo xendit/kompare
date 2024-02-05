@@ -20,6 +20,6 @@ func CompareRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, na
 		fmt.Printf("Error getting roles list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Rules", "Name", "Annotations"}
+	diffCriteria := []string{"Rules", "Name"}
 	return CompareVerboseVSNonVerbose(sourceRoles, targetRoles, diffCriteria, boolverboseDiffs)
 }

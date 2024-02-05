@@ -104,4 +104,6 @@ We still do not have formal contribution procedures, but if you open a PR or iss
 2. save comparison to file.
 3. Compare file to target again.
 3. Service specific particulars to compare; e.g.: when a type of object can have multiple ways of defining structure and we need to check some of those that are not always present.
-4. Customize filters for what to compare within a specific type of object. 
+4. Customize filters for what to compare within a specific type of object.
+5. Code Tests (unit testing).
+6. run the cluster comparison as a test suite.

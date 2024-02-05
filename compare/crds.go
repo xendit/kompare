@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 )
 
 // Compare CRDs using generic functions from module "compare"
@@ -19,6 +20,11 @@ func CompareCRDs(targetContext, configFile string, TheArgs cli.ArgumentsReceived
 		fmt.Printf("Error getting CRDs list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Spec", "Name"}
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Spec", "Name"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
 	return CompareVerboseVSNonVerbose(sourceCRDs, targetCRDs, diffCriteria, &TheArgs.VerboseDiffs)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -21,6 +22,11 @@ func CompareRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, na
 		fmt.Printf("Error getting roles list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Rules", "Name"}
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Rules", "Name"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
 	return CompareVerboseVSNonVerbose(sourceRoles, targetRoles, diffCriteria, &TheArgs.VerboseDiffs)
 }

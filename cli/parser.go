@@ -102,6 +102,16 @@ func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceiv
 		fmt.Println("You passed some invalid kubernetes object to exclude as a parameter: ", invalidInclude)
 		fmt.Println(". The program will try to execute anyways and ignore this")
 	}
+	if *TheArgs.FiltersForObject != "" && *TheArgs.Exclude != "" {
+		fmt.Println("Warning: The -f filtering option was not designed to be used with the -e option.")
+		fmt.Println("The program will try to execute anyway, but the output might not be what you expect.")
+		fmt.Println("The -f is to be used with one and only one -i include object type at the time.")
+	}
+	if *TheArgs.FiltersForObject != "" && tools.HasCharacter(*TheArgs.Include, ',') {
+		fmt.Println("Warning: The -f filtering option was not designed to be used with multiple -i objects,")
+		fmt.Println("The program will try to execute anyway, but the output might not be what you expect.")
+		fmt.Println("The -f is to be used with one and only one -i include object type at the time.")
+	}
 	return ArgumentsReceivedValidated{
 		KubeconfigFile:       configFile,
 		SourceClusterContext: strSourceClusterContext,

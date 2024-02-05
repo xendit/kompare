@@ -66,3 +66,13 @@ func AreAnyInLists(list1, list2 []string) bool {
 	}
 	return false
 }
+
+// HasCharacter checks if a string contains a specific character
+func HasCharacter(str string, char byte) bool {
+	for i := 0; i < len(str); i++ {
+		if str[i] == char {
+			return true
+		}
+	}
+	return false
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -21,6 +22,11 @@ func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clients
 		fmt.Printf("Error getting deployments list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Spec.Template.Spec", "Name"}
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Spec.Template.Spec", "Name"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
 	return CompareVerboseVSNonVerbose(sourceDeployments, targetDeplotments, diffCriteria, &TheArgs.VerboseDiffs)
 }

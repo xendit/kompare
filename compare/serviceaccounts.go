@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -20,6 +21,11 @@ func CompareServiceAccounts(clientsetToSource, clientsetToTarget *kubernetes.Cli
 		fmt.Printf("Error getting service accounts list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Annotations", "Name"}
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Annotations", "Name"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
 	return CompareVerboseVSNonVerbose(sourceServiceAccounts, targetServiceAccounts, diffCriteria, &TheArgs.VerboseDiffs)
 }

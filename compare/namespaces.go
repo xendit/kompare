@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -21,6 +22,11 @@ func CompareNameSpaces(clientsetToSource, clientsetToTarget *kubernetes.Clientse
 		fmt.Printf("Error getting namespace list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Spec", "Name", "Status.Phase"}
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Spec", "Name", "Status.Phase"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
 	return CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList, diffCriteria, &TheArgs.VerboseDiffs)
 }

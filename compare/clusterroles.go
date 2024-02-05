@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -20,6 +21,11 @@ func CompareClusterRoles(clientsetToSource, clientsetToTarget *kubernetes.Client
 		fmt.Printf("Error getting cluster role list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Rules", "Name", "Annotations"}
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Rules", "Name", "Annotations"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
 	return CompareVerboseVSNonVerbose(sourceClusterRoles, targetClusterRoles, diffCriteria, &TheArgs.VerboseDiffs)
 }

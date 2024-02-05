@@ -48,6 +48,7 @@ func main() {
 		}
 		sourceNameSpace = nil
 	}
+
 	iterateNamespaces(sourceNameSpacesList, clientsetToSource, clientsetToTarget, TheArgs)
 	// - Ingress (Needed?)
 	// Features (goot to have)
@@ -58,151 +59,153 @@ func main() {
 
 func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
 	// Comparing resources per namespace (Namespaced resources).
-	for _, ns := range sourceNameSpacesList.Items {
-		fmt.Printf("Looping on NS: %s\n", ns.Name)
-		// - Deployment (Spec.Template.Spec & ?)
-		if TheArgs.Exclude == nil && TheArgs.Include == nil {
+	if (TheArgs.Include == nil && TheArgs.Exclude == nil) || tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Include) || tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Exclude) {
+		for _, ns := range sourceNameSpacesList.Items {
+			fmt.Printf("Looping on NS: %s\n", ns.Name)
 			// - Deployment (Spec.Template.Spec & ?)
-			fmt.Println("Deployments")
-			compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished deployments for namespace: ", ns.Name)
-			// End Deployment
-			// - Services (Spec, Metadata.Annotations, Metadata.Labels )
-			fmt.Println("Services")
-			compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished Services for namespace: ", ns.Name)
-			// End services
-			// - Service accounts (Metadata.Annotations, Metadata.Labels)
-			fmt.Println("Service Accounts")
-			compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-			// End Service accounts
-			// - Secrets (Type, Data?)
-			fmt.Println("Secrets")
-			compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished Secrets for namespace: ", ns.Name)
-			// End Secrets
-			// - Config Maps (criteria)
-			fmt.Println("Config Maps (CM)")
-			// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-			// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-			compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-			// End Config maps
-			// - Roles
-			fmt.Println("Roles (RBAC)")
-			compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-			// End Roles
-			// - Role Bindings
-			fmt.Println("Role Bindings (RBAC)")
-			compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-			fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
-		}
-		if TheArgs.Exclude != nil {
-			if tools.IsInList("deployment", TheArgs.Exclude) == false {
+			if TheArgs.Exclude == nil && TheArgs.Include == nil {
+				// - Deployment (Spec.Template.Spec & ?)
 				fmt.Println("Deployments")
 				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished deployments for namespace: ", ns.Name)
-			}
-			// End Deployment
-			if tools.IsInList("service", TheArgs.Exclude) == false {
+				// End Deployment
 				// - Services (Spec, Metadata.Annotations, Metadata.Labels )
 				fmt.Println("Services")
 				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services for namespace: ", ns.Name)
-			}
-			// End services
-			if tools.IsInList("sa", TheArgs.Exclude) == false {
+				// End services
 				// - Service accounts (Metadata.Annotations, Metadata.Labels)
 				fmt.Println("Service Accounts")
 				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-			}
-			// End Service accounts
-			if tools.IsInList("secret", TheArgs.Exclude) == false {
+				// End Service accounts
 				// - Secrets (Type, Data?)
 				fmt.Println("Secrets")
 				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Secrets for namespace: ", ns.Name)
-			}
-			// End Secrets
-			// - Config Maps (criteria)
-			if tools.IsInList("configmap", TheArgs.Exclude) == false {
+				// End Secrets
+				// - Config Maps (criteria)
 				fmt.Println("Config Maps (CM)")
 				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-			}
-			// End Config maps
-			if tools.IsInList("role", TheArgs.Exclude) == false {
+				// End Config maps
 				// - Roles
 				fmt.Println("Roles (RBAC)")
 				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-			}
-			// End Roles
-			if tools.IsInList("role", TheArgs.Exclude) == false {
+				// End Roles
 				// - Role Bindings
 				fmt.Println("Role Bindings (RBAC)")
 				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
 			}
+			if TheArgs.Exclude != nil && tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Exclude) {
+				if tools.IsInList("deployment", TheArgs.Exclude) == false {
+					fmt.Println("Deployments")
+					compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished deployments for namespace: ", ns.Name)
+				}
+				// End Deployment
+				if tools.IsInList("service", TheArgs.Exclude) == false {
+					// - Services (Spec, Metadata.Annotations, Metadata.Labels )
+					fmt.Println("Services")
+					compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Services for namespace: ", ns.Name)
+				}
+				// End services
+				if tools.IsInList("sa", TheArgs.Exclude) == false {
+					// - Service accounts (Metadata.Annotations, Metadata.Labels)
+					fmt.Println("Service Accounts")
+					compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
+				}
+				// End Service accounts
+				if tools.IsInList("secret", TheArgs.Exclude) == false {
+					// - Secrets (Type, Data?)
+					fmt.Println("Secrets")
+					compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Secrets for namespace: ", ns.Name)
+				}
+				// End Secrets
+				// - Config Maps (criteria)
+				if tools.IsInList("configmap", TheArgs.Exclude) == false {
+					fmt.Println("Config Maps (CM)")
+					// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+					// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+					compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
+				}
+				// End Config maps
+				if tools.IsInList("role", TheArgs.Exclude) == false {
+					// - Roles
+					fmt.Println("Roles (RBAC)")
+					compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
+				}
+				// End Roles
+				if tools.IsInList("role", TheArgs.Exclude) == false {
+					// - Role Bindings
+					fmt.Println("Role Bindings (RBAC)")
+					compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
+				}
+			}
+			if TheArgs.Exclude == nil && TheArgs.Include != nil {
+				if tools.IsInList("deployment", TheArgs.Include) == true {
+					fmt.Println("Deployments")
+					compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished deployments for namespace: ", ns.Name)
+				}
+				// End Deployment
+				if tools.IsInList("service", TheArgs.Include) == true {
+					// - Services (Spec, Metadata.Annotations, Metadata.Labels )
+					fmt.Println("Services")
+					compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Services for namespace: ", ns.Name)
+				}
+				// End services
+				if tools.IsInList("sa", TheArgs.Include) == true {
+					// - Service accounts (Metadata.Annotations, Metadata.Labels)
+					fmt.Println("Service Accounts")
+					compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
+				}
+				// End Service accounts
+				if tools.IsInList("secret", TheArgs.Include) == true {
+					// - Secrets (Type, Data?)
+					fmt.Println("Secrets")
+					compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Secrets for namespace: ", ns.Name)
+				}
+				// End Secrets
+				// - Config Maps (criteria)
+				if tools.IsInList("configmap", TheArgs.Include) == true {
+					fmt.Println("Config Maps (CM)")
+					// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+					// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+					compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
+				}
+				// End Config maps
+				if tools.IsInList("role", TheArgs.Include) == true {
+					// - Roles
+					fmt.Println("Roles (RBAC)")
+					compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
+				}
+				// End Roles
+				if tools.IsInList("role", TheArgs.Include) == true {
+					// - Role Bindings
+					fmt.Println("Role Bindings (RBAC)")
+					compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+					fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
+				}
+			}
+			// End Role Bindings
+			fmt.Printf("... Done with all resources in ns: %s.\n", ns.Name)
 		}
-		if TheArgs.Exclude == nil && TheArgs.Include != nil {
-			if tools.IsInList("deployment", TheArgs.Include) == true {
-				fmt.Println("Deployments")
-				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished deployments for namespace: ", ns.Name)
-			}
-			// End Deployment
-			if tools.IsInList("service", TheArgs.Include) == true {
-				// - Services (Spec, Metadata.Annotations, Metadata.Labels )
-				fmt.Println("Services")
-				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Services for namespace: ", ns.Name)
-			}
-			// End services
-			if tools.IsInList("sa", TheArgs.Include) == true {
-				// - Service accounts (Metadata.Annotations, Metadata.Labels)
-				fmt.Println("Service Accounts")
-				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-			}
-			// End Service accounts
-			if tools.IsInList("secret", TheArgs.Include) == true {
-				// - Secrets (Type, Data?)
-				fmt.Println("Secrets")
-				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Secrets for namespace: ", ns.Name)
-			}
-			// End Secrets
-			// - Config Maps (criteria)
-			if tools.IsInList("configmap", TheArgs.Include) == true {
-				fmt.Println("Config Maps (CM)")
-				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-			}
-			// End Config maps
-			if tools.IsInList("role", TheArgs.Include) == true {
-				// - Roles
-				fmt.Println("Roles (RBAC)")
-				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-			}
-			// End Roles
-			if tools.IsInList("role", TheArgs.Include) == true {
-				// - Role Bindings
-				fmt.Println("Role Bindings (RBAC)")
-				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
-			}
-		}
-		// End Role Bindings
-		fmt.Printf("... Done with all resources in ns: %s.\n", ns.Name)
 	}
 }
 

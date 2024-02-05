@@ -2,12 +2,14 @@ package compare
 
 import (
 	"fmt"
+	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 
 	var TheDiff []DiffWithName
 	sourceConfigMaps, err := query.ListConfigMaps(clientsetToSource, namespaceName)
@@ -20,8 +22,13 @@ func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientse
 		fmt.Printf("Error getting deployments list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Data", "Name", "Annotations"}
-	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, boolverboseDiffs)
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Data", "Name", "Annotations"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
+	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, &TheArgs.VerboseDiffs)
 }
 
 func GenericCompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {

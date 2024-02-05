@@ -2,7 +2,7 @@
 
 Go CLI runner to compare two clusters. This software compares two kubernetes cluster using kubeconfig to connect to them and compare existing objects in the two clusters.
 ## Why do we need kompare
-This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way.
+This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way. The practical/real work we use the tool for is to compare a source cluster that is currently in production with a new cluster that we intend to put in prod. Therefore the source cluster "tends" to be considered the source of truth for the comparison.
 
 ## Key terms & help to use the tool.
 1. Source cluster refers to the origin cluster. If this was a number comparison then the source cluster would be the "left-hand side" (LHS) or "antecedent".

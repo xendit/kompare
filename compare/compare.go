@@ -288,6 +288,7 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 						tmpDiff.Name = targetName.String()
 						tmpDiff.Namespace = sourceNamespace.String()
 						tmpDiff.Diff = xdiff
+						tmpDiff.PropertyName = v
 						diffSourceTarget = append(diffSourceTarget, tmpDiff)
 					}
 				}
@@ -330,7 +331,6 @@ func ShowResourceComparison(sourceResource, targetResource interface{}, diffCrit
 	} else {
 		fmt.Println("Done compering target cluster versus source cluster's ", resourceType)
 	}
-	DeepCompare(targetResource, sourceResource, diffCriteria)
 	TheDiff = DeepCompare(targetResource, sourceResource, diffCriteria)
 	return TheDiff, nil
 }
@@ -339,14 +339,23 @@ func FormatDiffHumanReadable(differences []DiffWithName) string {
 	var formattedDiff strings.Builder
 	for _, diff := range differences {
 		if len(diff.Diff) != 0 {
-			formattedDiff.WriteString(fmt.Sprintf("Object Name: %s\n", diff.Name))
-			formattedDiff.WriteString(fmt.Sprintf("Namespace: %s\n", diff.Namespace))
-
-			formattedDiff.WriteString("Differences:\n")
-			for _, d := range diff.Diff {
-				formattedDiff.WriteString(fmt.Sprintf("- %s\n", d))
+			if diff.PropertyName != "" {
+				formattedDiff.WriteString(fmt.Sprintf("Kubernetes resource definition type: %s\n", diff.PropertyName))
 			}
-			formattedDiff.WriteString("\n")
+			if diff.Name != "" {
+				formattedDiff.WriteString(fmt.Sprintf("Object Name: %s\n", diff.Name))
+			}
+			if diff.Namespace != "" {
+				formattedDiff.WriteString(fmt.Sprintf("Namespace: %s\n", diff.Namespace))
+			}
+			formattedDiff.WriteString("Differences:\n")
+			if len(diff.Diff) > 0 {
+				for _, d := range diff.Diff {
+					formattedDiff.WriteString(fmt.Sprintf("- %s\n", d))
+				}
+
+				formattedDiff.WriteString("\n")
+			}
 		}
 	}
 	return formattedDiff.String()

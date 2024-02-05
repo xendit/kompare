@@ -2,12 +2,14 @@ package compare
 
 import (
 	"fmt"
+	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func CompareRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 
 	var TheDiff []DiffWithName
 	sourceRoleBindings, err := query.ListRoleBindings(clientsetToSource, namespaceName)
@@ -20,6 +22,11 @@ func CompareRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Client
 		fmt.Printf("Error getting role bindings list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"RoleRef", "Subjects"}
-	return CompareVerboseVSNonVerbose(sourceRoleBindings, targetRoleBindings, diffCriteria, boolverboseDiffs)
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"RoleRef", "Subjects"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
+	return CompareVerboseVSNonVerbose(sourceRoleBindings, targetRoleBindings, diffCriteria, &TheArgs.VerboseDiffs)
 }

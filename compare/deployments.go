@@ -2,13 +2,15 @@ package compare
 
 import (
 	"fmt"
+	"kompare/cli"
 	"kompare/query"
+	"kompare/tools"
 
 	"k8s.io/client-go/kubernetes"
 )
 
 // compare deployments for a namespace
-func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 	sourceDeployments, err := query.ListDeployments(clientsetToSource, namespaceName)
 	if err != nil {
@@ -20,6 +22,11 @@ func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clients
 		fmt.Printf("Error getting deployments list: %v\n", err)
 		return TheDiff, err
 	}
-	diffCriteria := []string{"Spec.Template.Spec", "Name"}
-	return CompareVerboseVSNonVerbose(sourceDeployments, targetDeplotments, diffCriteria, boolverboseDiffs)
+	var diffCriteria []string
+	if TheArgs.FiltersForObject == "" {
+		diffCriteria = []string{"Spec.Template.Spec", "Name"}
+	} else {
+		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
+	}
+	return CompareVerboseVSNonVerbose(sourceDeployments, targetDeplotments, diffCriteria, &TheArgs.VerboseDiffs)
 }

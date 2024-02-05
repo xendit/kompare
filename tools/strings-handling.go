@@ -54,3 +54,25 @@ func IsInList(str string, list []string) bool {
 	}
 	return false
 }
+
+// AreAnyInLists checks if any element from the first list is present in the second list
+func AreAnyInLists(list1, list2 []string) bool {
+	for _, s1 := range list1 {
+		for _, s2 := range list2 {
+			if s1 == s2 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// HasCharacter checks if a string contains a specific character
+func HasCharacter(str string, char byte) bool {
+	for i := 0; i < len(str); i++ {
+		if str[i] == char {
+			return true
+		}
+	}
+	return false
+}

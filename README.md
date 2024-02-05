@@ -101,8 +101,8 @@ We still do not have formal contribution procedures, but if you open a PR or iss
 # Roadmap
 
 ## Features (goot to have)
-2. save comparison to file.
-3. Compare file to target again.
+1. save comparison to file.
+2. Compare file to target again.
 3. (Done) Filter by "Kubernetes resource specifications type" e.g. Specs, Name, Annotations, etc. 
 4. Customize filters for what to compare within a specific type of object.
 5. Code Tests (unit testing).

@@ -103,7 +103,10 @@ We still do not have formal contribution procedures, but if you open a PR or iss
 ## Features (goot to have)
 2. save comparison to file.
 3. Compare file to target again.
-3. Service specific particulars to compare; e.g.: when a type of object can have multiple ways of defining structure and we need to check some of those that are not always present.
+3. (Done) Filter by "Kubernetes resource specifications type" e.g. Specs, Name, Annotations, etc. 
 4. Customize filters for what to compare within a specific type of object.
 5. Code Tests (unit testing).
 6. run the cluster comparison as a test suite.
+7. Sumary output version. All good vs There are some issues and a few lines of information about it.
+8. Docs.
+9. Make it do the works in parallel (go routines).

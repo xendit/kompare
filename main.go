@@ -53,8 +53,7 @@ func main() {
 	// Features (goot to have)
 	// - save comparison to file.
 	// - Compare file to target again.
-	fmt.Println("Finished!")
-
+	fmt.Println("Finished all comparison works!")
 }
 
 func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
@@ -65,66 +64,66 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 		if TheArgs.Exclude == nil && TheArgs.Include == nil {
 			// - Deployment (Spec.Template.Spec & ?)
 			fmt.Println("Deployments")
-			compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished deployments for namespace: ", ns.Name)
 			// End Deployment
 			// - Services (Spec, Metadata.Annotations, Metadata.Labels )
 			fmt.Println("Services")
-			compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished Services for namespace: ", ns.Name)
 			// End services
 			// - Service accounts (Metadata.Annotations, Metadata.Labels)
 			fmt.Println("Service Accounts")
-			compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
 			// End Service accounts
 			// - Secrets (Type, Data?)
 			fmt.Println("Secrets")
-			compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished Secrets for namespace: ", ns.Name)
 			// End Secrets
 			// - Config Maps (criteria)
 			fmt.Println("Config Maps (CM)")
 			// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 			// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-			compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
 			// End Config maps
 			// - Roles
 			fmt.Println("Roles (RBAC)")
-			compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
 			// End Roles
 			// - Role Bindings
 			fmt.Println("Role Bindings (RBAC)")
-			compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+			compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
 		}
 		if TheArgs.Exclude != nil {
 			if tools.IsInList("deployment", TheArgs.Exclude) == false {
 				fmt.Println("Deployments")
-				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished deployments for namespace: ", ns.Name)
 			}
 			// End Deployment
 			if tools.IsInList("service", TheArgs.Exclude) == false {
 				// - Services (Spec, Metadata.Annotations, Metadata.Labels )
 				fmt.Println("Services")
-				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services for namespace: ", ns.Name)
 			}
 			// End services
 			if tools.IsInList("sa", TheArgs.Exclude) == false {
 				// - Service accounts (Metadata.Annotations, Metadata.Labels)
 				fmt.Println("Service Accounts")
-				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
 			}
 			// End Service accounts
 			if tools.IsInList("secret", TheArgs.Exclude) == false {
 				// - Secrets (Type, Data?)
 				fmt.Println("Secrets")
-				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Secrets for namespace: ", ns.Name)
 			}
 			// End Secrets
@@ -133,49 +132,49 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 				fmt.Println("Config Maps (CM)")
 				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
 			}
 			// End Config maps
 			if tools.IsInList("role", TheArgs.Exclude) == false {
 				// - Roles
 				fmt.Println("Roles (RBAC)")
-				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
 			}
 			// End Roles
 			if tools.IsInList("role", TheArgs.Exclude) == false {
 				// - Role Bindings
 				fmt.Println("Role Bindings (RBAC)")
-				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
 			}
 		}
 		if TheArgs.Exclude == nil && TheArgs.Include != nil {
 			if tools.IsInList("deployment", TheArgs.Include) == true {
 				fmt.Println("Deployments")
-				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished deployments for namespace: ", ns.Name)
 			}
 			// End Deployment
 			if tools.IsInList("service", TheArgs.Include) == true {
 				// - Services (Spec, Metadata.Annotations, Metadata.Labels )
 				fmt.Println("Services")
-				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services for namespace: ", ns.Name)
 			}
 			// End services
 			if tools.IsInList("sa", TheArgs.Include) == true {
 				// - Service accounts (Metadata.Annotations, Metadata.Labels)
 				fmt.Println("Service Accounts")
-				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
 			}
 			// End Service accounts
 			if tools.IsInList("secret", TheArgs.Include) == true {
 				// - Secrets (Type, Data?)
 				fmt.Println("Secrets")
-				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Secrets for namespace: ", ns.Name)
 			}
 			// End Secrets
@@ -184,21 +183,21 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 				fmt.Println("Config Maps (CM)")
 				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
 			}
 			// End Config maps
 			if tools.IsInList("role", TheArgs.Include) == true {
 				// - Roles
 				fmt.Println("Roles (RBAC)")
-				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
 			}
 			// End Roles
 			if tools.IsInList("role", TheArgs.Include) == true {
 				// - Role Bindings
 				fmt.Println("Role Bindings (RBAC)")
-				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
+				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
 			}
 		}
@@ -214,40 +213,40 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 	if TheArgs.Include != nil &&
 		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Include) {
 		if tools.IsInList("namespace", TheArgs.Include) == true {
-			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
 		}
 		if tools.IsInList("crd", TheArgs.Include) == true {
-			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, &TheArgs.VerboseDiffs)
+			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
 		}
 		if tools.IsInList("clusterrole", TheArgs.Include) == true {
-			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
 		}
 		if tools.IsInList("clusterrolebinding", TheArgs.Include) == true {
-			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
 		}
 		doSomething = true
 	}
 	if TheArgs.Exclude != nil &&
 		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Exclude) {
 		if tools.IsInList("namespace", TheArgs.Exclude) == false {
-			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
 		}
 		if tools.IsInList("crd", TheArgs.Exclude) == false {
-			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, &TheArgs.VerboseDiffs)
+			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
 		}
 		if tools.IsInList("clusterrole", TheArgs.Exclude) == false {
-			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
 		}
 		if tools.IsInList("clusterrolebinding", TheArgs.Exclude) == false {
-			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
 		}
 		doSomething = true
 	}
 	if TheArgs.Include == nil && TheArgs.Exclude == nil {
-		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
-		compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, &TheArgs.VerboseDiffs)
-		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
-		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, &TheArgs.VerboseDiffs)
+		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
+		compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
+		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
+		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
 		doSomething = true
 	}
 	if doSomething {

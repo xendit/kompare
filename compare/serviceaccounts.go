@@ -2,12 +2,13 @@ package compare
 
 import (
 	"fmt"
+	"kompare/cli"
 	"kompare/query"
 
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareServiceAccounts(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func CompareServiceAccounts(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 	sourceServiceAccounts, err := query.ListServices(clientsetToSource, namespaceName)
 	if err != nil {
@@ -20,5 +21,5 @@ func CompareServiceAccounts(clientsetToSource, clientsetToTarget *kubernetes.Cli
 		return TheDiff, err
 	}
 	diffCriteria := []string{"Annotations", "Name"}
-	return CompareVerboseVSNonVerbose(sourceServiceAccounts, targetServiceAccounts, diffCriteria, boolverboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceServiceAccounts, targetServiceAccounts, diffCriteria, &TheArgs.VerboseDiffs)
 }

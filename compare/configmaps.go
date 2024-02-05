@@ -2,12 +2,13 @@ package compare
 
 import (
 	"fmt"
+	"kompare/cli"
 	"kompare/query"
 
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 
 	var TheDiff []DiffWithName
 	sourceConfigMaps, err := query.ListConfigMaps(clientsetToSource, namespaceName)
@@ -21,7 +22,7 @@ func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientse
 		return TheDiff, err
 	}
 	diffCriteria := []string{"Data", "Name", "Annotations"}
-	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, boolverboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, &TheArgs.VerboseDiffs)
 }
 
 func GenericCompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {

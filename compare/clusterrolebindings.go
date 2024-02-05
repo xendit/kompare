@@ -2,12 +2,13 @@ package compare
 
 import (
 	"fmt"
+	"kompare/cli"
 	"kompare/query"
 
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareClusterRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Clientset, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func CompareClusterRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 	sourceClusterRoleBindings, err := query.ListClusterRoleBindings(clientsetToSource)
 	if err != nil {
@@ -20,5 +21,5 @@ func CompareClusterRoleBindings(clientsetToSource, clientsetToTarget *kubernetes
 		return TheDiff, err
 	}
 	diffCriteria := []string{"RoleRef", "Name", "Annotations"}
-	return CompareVerboseVSNonVerbose(sourceClusterRoleBindings, targetClusterRoleBindings, diffCriteria, boolverboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceClusterRoleBindings, targetClusterRoleBindings, diffCriteria, &TheArgs.VerboseDiffs)
 }

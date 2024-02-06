@@ -110,3 +110,5 @@ We still do not have formal contribution procedures, but if you open a PR or iss
 7. Sumary output version. All good vs There are some issues and a few lines of information about it.
 8. Docs.
 9. Make it do the works in parallel (go routines).
+10. parser for different types of diff objects.
+11. (Done) Bug source on left, target on the right for diffs.

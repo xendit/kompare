@@ -7,6 +7,8 @@ import (
 	"kompare/connect"
 	"kompare/query"
 	"kompare/tools"
+	"path/filepath"
+	"strings"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,12 +36,15 @@ func main() {
 	// End getting CLI arguments.
 	var sourceNameSpacesList *v1.NamespaceList
 	var sourceNameSpace *v1.Namespace
-
-	if TheArgs.NamespaceName != "" {
+	NameSpaceArgContent := DetectNamespacePattern(TheArgs.NamespaceName)
+	if NameSpaceArgContent == "specific" {
 		fmt.Println("Using ", TheArgs.NamespaceName, " namespace")
 		sourceNameSpace = &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: TheArgs.NamespaceName}}
 		sourceNameSpacesList = &v1.NamespaceList{Items: []v1.Namespace{*sourceNameSpace}}
-	} else {
+	} else if NameSpaceArgContent == "wildcard" {
+		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
+		sourceNameSpacesList = filterNamespaces(sourceNameSpacesList, TheArgs.NamespaceName)
+	} else if NameSpaceArgContent == "empty" {
 		iterateGoglabObjects(clientsetToSource, clientsetToTarget, TheArgs)
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
 		if err != nil {
@@ -254,5 +259,35 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 	}
 	if doSomething {
 		fmt.Println("Done comparing Kuberentes global objects.")
+	}
+}
+
+// filterNamespaces filters namespaces based on the wildcard pattern
+func filterNamespaces(namespaces *v1.NamespaceList, pattern string) *v1.NamespaceList {
+	var matchingNamespaces v1.NamespaceList
+	for _, ns := range namespaces.Items {
+		if matchWildcard(ns.Name, pattern) {
+			matchingNamespaces.Items = append(matchingNamespaces.Items, ns)
+		}
+	}
+	return &matchingNamespaces
+}
+
+// matchWildcard checks if a string matches the wildcard pattern
+func matchWildcard(s, pattern string) bool {
+	match, err := filepath.Match(pattern, s)
+	if err != nil {
+		return false
+	}
+	return match
+}
+
+func DetectNamespacePattern(pattern string) string {
+	if pattern == "" {
+		return "empty"
+	} else if strings.Contains(pattern, "*") {
+		return "wildcard"
+	} else {
+		return "specific"
 	}
 }

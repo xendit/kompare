@@ -120,4 +120,7 @@ We still do not have formal contribution procedures, but if you open a PR or iss
 11. (Done) Bug source on left, target on the right for diffs.
 12. We have too many exceptions and changes for the cluster upgrades so we need to have a way to tell the program to ignore certain resources. For instance jkt-aws-1 has only 2 apps currently and everything else can be ignored for now as we will change those to the PCI and CDE clusters, etc. Therefore the DIFFs will be very big and hard to extract meaning out of them. See here: https://docs.google.com/spreadsheets/d/1rxdYAf3Eo8RdAfOXxoQYmsFD6lLAyftpi3Cpk7-GQG0/edit#gid=0
 13. (Done) Implement -n option with wildcard and regex to get the list of namespaces to evaluate. It works with '' to quote the wildcard e.g: '*elero' would  match things like velero.
+14. Compare hpa
+15. compare conjobs
+
 

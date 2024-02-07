@@ -98,5 +98,5 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Contributing
 
-PRs and testing and opening issues are all welcome!
+PRs, testing and opening issues are all welcome!
 

@@ -122,5 +122,6 @@ We still do not have formal contribution procedures, but if you open a PR or iss
 13. (Done) Implement -n option with wildcard and regex to get the list of namespaces to evaluate. It works with '' to quote the wildcard e.g: '*elero' would  match things like velero.
 14. Compare hpa
 15. compare conjobs
+16. Code refactoring to make it have less repeated code and more reusable generic programming.
 
 

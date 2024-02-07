@@ -21,6 +21,20 @@ type ArgumentsReceivedValidated struct {
 	Err                                                                                         error
 }
 
+// PaserReader parses the command-line arguments and returns validated arguments.
+// It creates a new parser object and defines various flags and options.
+// The flags and options include:
+//   - 'c' or 'conf' flag for specifying the path to the kubeconfig file (optional).
+//   - 's' or 'src' flag for specifying the source cluster's context (optional).
+//   - 't' or 'target' flag for specifying the target cluster's context (required).
+//   - 'v' or 'verbose' flag for enabling verbose mode to show all diffs (optional).
+//   - 'i' or 'include' flag for specifying a list of Kubernetes objects to include (optional).
+//   - 'e' or 'exclude' flag for specifying a list of Kubernetes objects to exclude (optional).
+//   - 'n' or 'namespace' flag for specifying the namespace to be copied (optional, defaults to 'default').
+//   - 'f' or 'filter' flag for specifying what parts of the object to compare (optional).
+//
+// If an error occurs during parsing, it prints the error and usage information.
+// The function returns a struct containing validated arguments.
 func PaserReader() ArgumentsReceivedValidated {
 	// Create new parser object
 	parser := argparse.NewParser("print", "Prints provided string to stdout")
@@ -63,6 +77,15 @@ func PaserReader() ArgumentsReceivedValidated {
 
 }
 
+// ValidateParametersFromParserArgs validates the arguments received from the command-line parser.
+// It extracts the source cluster context, target cluster context, and namespace name from the arguments.
+// If the source cluster context is empty, it informs the user that the current kubeconfig context will be used.
+// If not empty, it informs the user about the source cluster context being used.
+// It sets the kubeconfig file path based on the provided file path or the default ~/.kube/config.
+// It validates and parses the include and exclude lists of Kubernetes objects.
+// If there are invalid objects in the include or exclude lists, it prints a warning but continues execution.
+// It checks for improper usage of filtering options with include and exclude lists and prints warnings accordingly.
+// The function returns a struct containing validated arguments for further processing.
 func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceivedValidated {
 	var strSourceClusterContext, strTargetClusterContext, strNamespaceName string
 	strSourceClusterContext = *TheArgs.SourceClusterContext

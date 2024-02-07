@@ -224,7 +224,9 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 
 // filterNamespaces filters namespaces based on the wildcard pattern
 func filterNamespaces(namespaces *v1.NamespaceList, pattern string) *v1.NamespaceList {
-	var matchingNamespaces v1.NamespaceList
+	matchingNamespaces := v1.NamespaceList{
+		Items: []v1.Namespace{},
+	}
 	for _, ns := range namespaces.Items {
 		if matchWildcard(ns.Name, pattern) {
 			matchingNamespaces.Items = append(matchingNamespaces.Items, ns)

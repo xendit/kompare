@@ -17,7 +17,6 @@ import (
 
 func main() {
 	// Getting and pasinf CLI argumets.
-	// var TheArgs cli.ArgumentsReceived
 	TheArgs := cli.PaserReader()
 	if TheArgs.Err != nil {
 		fmt.Printf("Error parsing arguments: %v\n", TheArgs.Err)
@@ -34,6 +33,7 @@ func main() {
 		return
 	}
 	// End getting CLI arguments.
+	// Global resources.
 	var sourceNameSpacesList *v1.NamespaceList
 	var sourceNameSpace *v1.Namespace
 	NameSpaceArgContent := DetectNamespacePattern(TheArgs.NamespaceName)
@@ -53,12 +53,8 @@ func main() {
 		}
 		sourceNameSpace = nil
 	}
-
+	//Iterate each namespace.
 	iterateNamespaces(sourceNameSpacesList, clientsetToSource, clientsetToTarget, TheArgs)
-	// - Ingress (Needed?)
-	// Features (goot to have)
-	// - save comparison to file.
-	// - Compare file to target again.
 	fmt.Println("Finished all comparison works!")
 }
 

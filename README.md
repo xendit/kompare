@@ -42,10 +42,6 @@ Arguments:
 ```
 So far only the -t option is required.
 
-## Ownership
-Team:   `xendit/infrastructure` 
-Slack Handle: `@troops-infrastructure`
-
 ## Getting Started
 
 This is a project currently in dev, the best way to use it it to do a go build or to just run it in the console with something like:
@@ -102,25 +98,5 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Contributing
 
-We still do not have formal contribution procedures, but if you open a PR or issue for this project it will be reviewed and responded too.
-
-# Roadmap
-
-## Features (goot to have)
-1. save comparison to file.
-2. Compare file to target again.
-3. (Done) Filter by "Kubernetes resource specifications type" e.g. Specs, Name, Annotations, etc. 
-4. Customize filters for what to compare within a specific type of object.
-5. Code Tests (unit testing).
-6. run the cluster comparison as a test suite.
-7. Sumary output version. All good vs There are some issues and a few lines of information about it.
-8. Docs.
-9. Make it do the works in parallel (go routines).
-10. parser for different types of diff objects.
-11. (Done) Bug source on left, target on the right for diffs.
-12. We have too many exceptions and changes for the cluster upgrades so we need to have a way to tell the program to ignore certain resources. For instance jkt-aws-1 has only 2 apps currently and everything else can be ignored for now as we will change those to the PCI and CDE clusters, etc. Therefore the DIFFs will be very big and hard to extract meaning out of them. See here: https://docs.google.com/spreadsheets/d/1rxdYAf3Eo8RdAfOXxoQYmsFD6lLAyftpi3Cpk7-GQG0/edit#gid=0
-13. (Done) Implement -n option with wildcard and regex to get the list of namespaces to evaluate. It works with '' to quote the wildcard e.g: '*elero' would  match things like velero.
-14. Compare hpa
-15. compare conjobs
-
+PRs are testing and opening issues are all welcome!
 

@@ -83,6 +83,10 @@ func BuildConfigWithContextFromFlags(context string, kubeconfigPath string) (*re
 		}).ClientConfig()
 }
 
+// ConnectToSource establishes a connection to a Kubernetes cluster specified by strSourceClusterContext.
+// If strSourceClusterContext is provided, it switches the context to that cluster using the configFile.
+// If strSourceClusterContext is empty, it connects to the current context using the configFile.
+// It returns a Kubernetes clientset for the connected cluster and any error encountered during the connection.
 func ConnectToSource(strSourceClusterContext string, configFile *string) (*kubernetes.Clientset, error) {
 	var clientsetToSource *kubernetes.Clientset
 	var err error

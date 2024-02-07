@@ -21,6 +21,9 @@ import (
 
 type TypeAssertionFunc func(interface{}) (bool, interface{})
 
+// typeAssertions is a map containing type assertion functions for various Kubernetes resource lists.
+// Each entry in the map consists of a string key representing the type of Kubernetes resource list
+// and a corresponding TypeAssertionFunc, which is a function type.
 var typeAssertions = map[string]TypeAssertionFunc{
 	"*Corev1.NamespaceList": func(obj interface{}) (bool, interface{}) {
 		val, ok := obj.(*Corev1.NamespaceList)
@@ -103,6 +106,10 @@ func GetTypeInfo(obj interface{}) (string, interface{}) {
 	return typeName, objValue
 }
 
+// GenericCountListElements counts the number of elements in a generic list object.
+// It checks the type of the object and extracts its value.
+// If the object has an "Items" field and it's of slice type, it returns the length of the slice.
+// If the object does not meet the criteria for counting elements, it returns 0.
 func GenericCountListElements(obj interface{}) int {
 	// Check the type of the object
 	_, objValue := GetTypeInfo(obj)
@@ -122,7 +129,10 @@ func GenericCountListElements(obj interface{}) int {
 	return 0
 }
 
-// Function to check if an object has an "Items" field
+// hasItemsField checks if an object has an "Items" field.
+// It takes an interface{} as input and inspects its type and value using reflection.
+// If the object is a pointer to a struct and the struct has a field named "Items",
+// it returns true if the "Items" field exists in the value, otherwise returns false.
 func hasItemsField(obj interface{}) bool {
 	objType := reflect.TypeOf(obj)
 	objValue := reflect.ValueOf(obj)
@@ -142,11 +152,24 @@ func hasItemsField(obj interface{}) bool {
 	return false
 }
 
+// CompareNumbersGenericOutput prints a comparison result between two numbers along with a description of what they represent.
+// It takes two integers (number1 and number2) representing counts from different clusters and an interface{} (what) as input.
+// The interface{} parameter is expected to describe the type of objects being compared.
+// It formats and prints a comparison message indicating the count of objects represented by 'what'
+// in the source cluster (number1) compared to the count in the target cluster (number2).
 func CompareNumbersGenericOutput(number1, number2 int, what interface{}) {
 	fmt.Printf("The number of %s in the source cluster is %d and there are %d in the target cluster.\n",
 		tools.ConvertTypeStringToHumanReadable(what), number1, number2)
 }
 
+// IterateGenericSimpleDiff iterates over two generic interfaces representing lists of objects
+// and identifies the differences between them.
+// It takes sourceInterface and targetInterface as input, which are interfaces representing lists of objects.
+// It calculates the lengths of both interfaces and compares them.
+// If the lengths are not equal, it prints a notice indicating the discrepancy.
+// It currently returns empty slices for differences since the comparison logic is not implemented.
+// Further implementation is required to compare the actual objects and identify differences.
+// The function returns two empty string slices for differences.
 func IterateGenericSimpleDiff(sourceInterface, targetInterface interface{}) ([]string, []string) {
 	lenSourceInterface := GenericCountListElements(sourceInterface)
 	lenTargetInterface := GenericCountListElements(targetInterface)
@@ -160,16 +183,15 @@ func IterateGenericSimpleDiff(sourceInterface, targetInterface interface{}) ([]s
 	return nil, nil
 }
 
-// CompareNumberOfDeployments compares the number of deployments in the source and target clusters.
-// It takes two DeploymentList objects as input.
-// It prints the number of deployments in the source and target clusters.
-// It returns the number of deployments in the source and target clusters.
-// IterateDeploymentsSimpleDiff iterates over the deployments in the source and target clusters.
-// It calls CompareNumberOfDeployments to get the number of deployments in each cluster.
-// If the number of deployments is not equal, it identifies deployments that are only present in one cluster but not the other.
-// It prints a notice about the unequal number of deployments.
-// It returns two lists: onlyInSource and onlyInTarget, which contain the names of deployments that are only present in the source or target cluster, respectively.
-
+// CompareByName compares objects in two interfaces by their names.
+// It takes two interface{} parameters (firstInterface and secondInterface) representing lists of objects,
+// and a string message_heading as input.
+// It extracts the "Items" field from both interfaces and iterates through the items in the first interface.
+// For each item in the first interface, it checks if the item is present in the second interface.
+// If an item is not present in the second interface, it generates and prints a message using the message_heading
+// and appends the item's name to the diffNameList.
+// The function returns a slice containing the names of the items that are present in the first interface
+// but not in the second interface.
 func CompareByName(firstInterface, secondInterface interface{}, message_heading string) []string {
 	var diffNameList []string
 
@@ -193,12 +215,17 @@ func CompareByName(firstInterface, secondInterface interface{}, message_heading 
 	return diffNameList
 }
 
-// Function to generate a generic message
+// generateMessage generates a generic message using a template, object type, and item name.
+// It takes three string parameters: template, objectType, and ItemName.
+// It formats and returns a message by inserting the objectType and ItemName into the template.
 func generateMessage(template, objectType, ItemName string) string {
 	return fmt.Sprintf(template, objectType, ItemName)
 }
 
-// Function to check if an item is present in the second interface
+// containsItem checks if an item is present in the second interface.
+// It takes an item interface{} and a reflect.Value (secondItems) representing the second interface.
+// It loops through the items in the second interface and compares each item's name with the name of the provided item.
+// If a matching item is found, it returns true; otherwise, it returns false.
 func containsItem(item interface{}, secondItems reflect.Value) bool {
 	// Loop through the items in the second interface
 	for i := 0; i < secondItems.Len(); i++ {
@@ -213,7 +240,10 @@ func containsItem(item interface{}, secondItems reflect.Value) bool {
 	return false
 }
 
-// Function to get the name of an item (assumes the item has a "Name" field)
+// getName retrieves the name of an item assuming it has a "Name" field.
+// It takes an item interface{} as input and extracts the value of the "Name" field.
+// If the field is valid and of type string, it returns the string value of the field.
+// If the field is invalid or not of type string, it returns an empty string.
 func getName(item interface{}) string {
 	nameField := reflect.ValueOf(item).FieldByName("Name")
 	if nameField.IsValid() && nameField.Kind() == reflect.String {
@@ -222,16 +252,12 @@ func getName(item interface{}) string {
 	return ""
 }
 
-// DeepDeploySourceTargetCompare compares the important parts of the manifest of deployments from the source and target clusters.
-//
-// Parameters:
-//
-//	sourceDeployments: List of deployments from the source cluster
-//	targetDeployments: List of deployments from the target cluster
-//
-// Returns:
-//
-//	diffSourceTarget: List of DiffWithName structs containing the deployments that exist in both clusters but have differences in their specifications.
+// getNestedFieldValue retrieves the value of a nested field within a structure using reflection.
+// It takes a reflect.Value (obj) representing the structure and a slice of strings (fieldNames) representing the nested field names.
+// It iterates through each field name in the fieldNames slice and accesses the corresponding nested field in the structure.
+// If the structure contains pointers, it dereferences them to access the nested fields.
+// If a nested field is not found or is invalid, it returns an error indicating the missing field.
+// Otherwise, it returns the reflect.Value of the nested field.
 func getNestedFieldValue(obj reflect.Value, fieldNames []string) (reflect.Value, error) {
 	for _, fieldName := range fieldNames {
 		// Dereference pointers in the nested structure
@@ -251,6 +277,13 @@ func getNestedFieldValue(obj reflect.Value, fieldNames []string) (reflect.Value,
 	return obj, nil
 }
 
+// DeepCompare performs a deep comparison between two interfaces representing lists of objects.
+// It compares the objects based on specified criteria and returns a list of differences along with their names and namespaces.
+// It takes sourceInterface and targetInterface as input interfaces and DiffCriteria as a slice of strings representing comparison criteria.
+// It iterates over the 'Items' fields of both sourceInterface and targetInterface and compares each item's 'Name' field.
+// If the 'Name' fields match, it compares the specified DiffCriteria fields of the objects using the deep.Equal function from the 'github.com/go-test/deep' package.
+// It constructs DiffWithName structs containing the object name, namespace, difference details, and property name for each difference found.
+// The function returns a slice of DiffWithName containing the differences between the source and target interfaces based on the specified criteria.
 func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []string) []DiffWithName {
 	var tmpDiff DiffWithName
 	var diffSourceTarget []DiffWithName
@@ -301,6 +334,15 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 	return diffSourceTarget
 }
 
+// ShowResourceComparison compares two sets of resources from different clusters and identifies differences based on specified criteria.
+// It takes sourceResource and targetResource as input interfaces representing lists of resources from different clusters,
+// and diffCriteria as a slice of strings representing comparison criteria.
+// It calculates the lengths of sourceResource and targetResource and compares them.
+// If the lengths are different, it prints a message indicating the discrepancy and performs a number comparison.
+// It then compares the resources in both clusters using the CompareByName function and prints the differences.
+// It also performs a deep comparison of resources based on the specified diffCriteria using the DeepCompare function.
+// The function returns a slice of DiffWithName containing the differences between the source and target resources,
+// along with any error encountered during the comparison.
 func ShowResourceComparison(sourceResource, targetResource interface{}, diffCriteria []string) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 	lensourceResource := GenericCountListElements(sourceResource)
@@ -335,6 +377,11 @@ func ShowResourceComparison(sourceResource, targetResource interface{}, diffCrit
 	return TheDiff, nil
 }
 
+// FormatDiffHumanReadable formats differences in a human-readable format.
+// It takes a slice of DiffWithName (differences) containing information about differences between resources.
+// It iterates over each difference and constructs a human-readable format containing details such as resource type, object name, namespace, and specific differences.
+// If a property name, object name, namespace, or differences exist for a particular difference, it includes them in the formatted output.
+// The function returns a string containing the human-readable formatted differences.
 func FormatDiffHumanReadable(differences []DiffWithName) string {
 	var formattedDiff strings.Builder
 	for _, diff := range differences {
@@ -361,6 +408,13 @@ func FormatDiffHumanReadable(differences []DiffWithName) string {
 	return formattedDiff.String()
 }
 
+// CompareVerboseVSNonVerbose compares two sets of namespaces from different clusters based on specified criteria.
+// It takes sourceNameSpacesList and targetNameSpacesList as input interfaces representing lists of namespaces from different clusters,
+// diffCriteria as a slice of strings representing comparison criteria, and boolverboseDiffs as a pointer to a boolean indicating whether to display verbose differences.
+// If boolverboseDiffs is true, it shows detailed differences by calling ShowResourceComparison, formats the differences in a human-readable format using FormatDiffHumanReadable, and prints them.
+// If boolverboseDiffs is false, it performs a regular comparison using ShowResourceComparison without verbose output.
+// The function returns a slice of DiffWithName containing the differences between the source and target namespaces,
+// along with any error encountered during the comparison.
 func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList interface{}, diffCriteria []string, boolverboseDiffs *bool) ([]DiffWithName, error) {
 	if *boolverboseDiffs {
 		TheDiff, err := ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria)
@@ -371,6 +425,16 @@ func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList inter
 	}
 }
 
+// GenericCompareResources compares resources between two Kubernetes clusters based on specified criteria.
+// It takes clientsetToSource and clientsetToTarget as pointers to kubernetes.Clientset representing connections to the source and target clusters,
+// namespaceName as a string specifying the namespace to compare resources in,
+// resourceGetter as a function to retrieve the list of resources from a clientset and namespace,
+// diffCriteria as a slice of strings representing comparison criteria,
+// and boolverboseDiffs as a pointer to a boolean indicating whether to display verbose differences.
+// It retrieves the list of resources from both the source and target clusters using the resourceGetter function.
+// It then performs a comparison between the resources from both clusters using the CompareVerboseVSNonVerbose function.
+// The function returns a slice of DiffWithName containing the differences between the source and target resources,
+// along with any error encountered during the comparison.
 func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, resourceGetter func(*kubernetes.Clientset, string) (interface{}, error), diffCriteria []string, boolverboseDiffs *bool) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 

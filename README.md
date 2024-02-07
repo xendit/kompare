@@ -12,7 +12,7 @@ This CLI tool has been created in the context of having to compare two clusters 
 go run main.go -h
 usage: print [-h|--help] [-c|--conf "<value>"] [-s|--src "<value>"] -t|--target
              "<value>" [-v|--verbose] [-i|--include "<value>"] [-e|--exclude
-             "<value>"] [-n|--namespace "<value>"]
+             "<value>"] [-n|--namespace "<value>"] [-f|--filter "<value>"]
 
              Prints provided string to stdout
 
@@ -32,7 +32,13 @@ Arguments:
   -e  --exclude    List of kubernetes objects to include, this should be an
                    element or a comma separated list.
   -n  --namespace  Namespace that needs to be copied. defaults to 'default'
-                   namespace
+                   namespace. The option also accepts wilcard matching of
+                   namespace. E.G.: '*-pci' would match any namespace that ends
+                   with -pci. Notice that the '' might be required in some
+                   consoles like iterm
+  -f  --filter     Filter what parts of the object I want to compare. must be
+                   used together with -i option to apply to that type of
+                   objects
 ```
 So far only the -t option is required.
 

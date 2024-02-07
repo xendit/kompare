@@ -16,45 +16,56 @@ import (
 )
 
 func main() {
-	// Getting and pasinf CLI argumets.
-	TheArgs := cli.PaserReader()
-	if TheArgs.Err != nil {
-		fmt.Printf("Error parsing arguments: %v\n", TheArgs.Err)
+	// Parse CLI arguments
+	args := cli.PaserReader()
+	if args.Err != nil {
+		fmt.Printf("Error parsing arguments: %v\n", args.Err)
 		return
 	}
-	clientsetToSource, err := connect.ConnectToSource(TheArgs.SourceClusterContext, &TheArgs.KubeconfigFile)
+
+	// Connect to source cluster
+	clientsetToSource, err := connect.ConnectToSource(args.SourceClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		fmt.Printf("Error connecting: %v\n", err)
+		fmt.Printf("Error connecting to source cluster: %v\n", err)
 		return
 	}
-	clientsetToTarget, err := connect.ContextSwitch(TheArgs.TargetClusterContext, &TheArgs.KubeconfigFile)
+
+	// Connect to target cluster
+	clientsetToTarget, err := connect.ContextSwitch(args.TargetClusterContext, &args.KubeconfigFile)
 	if err != nil {
 		fmt.Printf("Error switching context: %v\n", err)
 		return
 	}
-	// End getting CLI arguments.
-	// Global resources.
+
+	// Determine namespace argument type
 	var sourceNameSpacesList *v1.NamespaceList
 	var sourceNameSpace *v1.Namespace
-	NameSpaceArgContent := DetectNamespacePattern(TheArgs.NamespaceName)
-	if NameSpaceArgContent == "specific" {
-		fmt.Println("Using ", TheArgs.NamespaceName, " namespace")
-		sourceNameSpace = &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: TheArgs.NamespaceName}}
+	namespaceArgType := DetectNamespacePattern(args.NamespaceName)
+	switch namespaceArgType {
+	case "specific":
+		fmt.Println("Using", args.NamespaceName, "namespace")
+		sourceNameSpace = &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: args.NamespaceName}}
 		sourceNameSpacesList = &v1.NamespaceList{Items: []v1.Namespace{*sourceNameSpace}}
-	} else if NameSpaceArgContent == "wildcard" {
-		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
-		sourceNameSpacesList = filterNamespaces(sourceNameSpacesList, TheArgs.NamespaceName)
-	} else if NameSpaceArgContent == "empty" {
-		iterateGoglabObjects(clientsetToSource, clientsetToTarget, TheArgs)
+	case "wildcard":
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
 		if err != nil {
-			fmt.Printf("Error getting namespace list: %v\n", err)
+			fmt.Printf("Error listing namespaces: %v\n", err)
+			return
+		}
+		sourceNameSpacesList = filterNamespaces(sourceNameSpacesList, args.NamespaceName)
+	case "empty":
+		iterateGoglabObjects(clientsetToSource, clientsetToTarget, args)
+		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
+		if err != nil {
+			fmt.Printf("Error listing namespaces: %v\n", err)
 			return
 		}
 		sourceNameSpace = nil
 	}
-	//Iterate each namespace.
-	iterateNamespaces(sourceNameSpacesList, clientsetToSource, clientsetToTarget, TheArgs)
+
+	// Iterate over namespaces
+	iterateNamespaces(sourceNameSpacesList, clientsetToSource, clientsetToTarget, args)
+
 	fmt.Println("Finished all comparison works!")
 }
 

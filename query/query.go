@@ -57,15 +57,15 @@ func ListDeployments(clientset *kubernetes.Clientset, nameSpace string) (*v1.Dep
 // - nameSpace: The namespace in which to list the HPAs. If empty, uses the "default" namespace.
 // Returns:
 // - (*autoscalingv1.HorizontalPodAutoscalerList): A list of HorizontalPodAutoscalers.
-func ListHPAs(clientset *kubernetes.Clientset, nameSpace string) *autoscalingv1.HorizontalPodAutoscalerList {
+func ListHPAs(clientset *kubernetes.Clientset, nameSpace string) (*autoscalingv1.HorizontalPodAutoscalerList, error) {
 	if nameSpace == "" {
 		nameSpace = "default"
 	}
 	listHPA, err := clientset.AutoscalingV1().HorizontalPodAutoscalers(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
-	return listHPA
+	return listHPA, nil
 }
 
 // ListCronJobs retrieves a list of CronJobs in the specified namespace.
@@ -114,7 +114,7 @@ func ListCRDs(ctx, kubeconfig string) (*apiextensionv1.CustomResourceDefinitionL
 // Returns:
 // - (*networkingv1.IngressList): A list of Services.
 // - (error): An error if any occurred during the API call.
-func ListIngressRoutes(clientset *kubernetes.Clientset, nameSpace string) (*networkingv1.IngressList, error) {
+func ListIngresses(clientset *kubernetes.Clientset, nameSpace string) (*networkingv1.IngressList, error) {
 	listIngress, err := clientset.NetworkingV1().Ingresses(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err

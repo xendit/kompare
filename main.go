@@ -67,44 +67,37 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 	if (TheArgs.Include == nil && TheArgs.Exclude == nil) || tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Include) || tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Exclude) {
 		for _, ns := range sourceNameSpacesList.Items {
 			fmt.Printf("Looping on NS: %s\n", ns.Name)
-			// - Deployment (Spec.Template.Spec & ?)
 			if TheArgs.Exclude == nil && TheArgs.Include == nil {
-				// - Deployment (Spec.Template.Spec & ?)
 				fmt.Println("Deployments")
 				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished deployments for namespace: ", ns.Name)
-				// End Deployment
-				// - Services (Spec, Metadata.Annotations, Metadata.Labels )
 				fmt.Println("Services")
 				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services for namespace: ", ns.Name)
-				// End services
-				// - Service accounts (Metadata.Annotations, Metadata.Labels)
 				fmt.Println("Service Accounts")
 				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-				// End Service accounts
-				// - Secrets (Type, Data?)
 				fmt.Println("Secrets")
 				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Secrets for namespace: ", ns.Name)
-				// End Secrets
-				// - Config Maps (criteria)
 				fmt.Println("Config Maps (CM)")
-				// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-				// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
 				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-				// End Config maps
-				// - Roles
 				fmt.Println("Roles (RBAC)")
 				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-				// End Roles
-				// - Role Bindings
 				fmt.Println("Role Bindings (RBAC)")
 				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 				fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
+				fmt.Println("Ingress")
+				compare.CompareIngresses(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+				fmt.Println("Finished Ingreess for namespace: ", ns.Name)
+				fmt.Println("HPAs")
+				compare.CompareHPAs(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+				fmt.Println("Finished HPAs for namespace: ", ns.Name)
+				fmt.Println("Cron Jobs")
+				compare.CompareCronJobs(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+				fmt.Println("Finished Cron Jobs for namespace: ", ns.Name)
 			}
 			if TheArgs.Exclude != nil && tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Exclude) {
 				if tools.IsInList("deployment", TheArgs.Exclude) == false {

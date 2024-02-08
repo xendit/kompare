@@ -201,54 +201,6 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
 }
 
-func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
-	// Comparing namespaces.
-	// notice that this fuction returns a diff to be used if we use tests instead of CLI
-	doSomething := false
-	if TheArgs.Include != nil &&
-		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Include) {
-		if tools.IsInList("namespace", TheArgs.Include) == true {
-			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("crd", TheArgs.Include) == true {
-			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
-		}
-		if tools.IsInList("clusterrole", TheArgs.Include) == true {
-			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("clusterrolebinding", TheArgs.Include) == true {
-			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		doSomething = true
-	}
-	if TheArgs.Exclude != nil &&
-		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Exclude) {
-		if tools.IsInList("namespace", TheArgs.Exclude) == false {
-			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("crd", TheArgs.Exclude) == false {
-			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
-		}
-		if tools.IsInList("clusterrole", TheArgs.Exclude) == false {
-			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("clusterrolebinding", TheArgs.Exclude) == false {
-			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		doSomething = true
-	}
-	if TheArgs.Include == nil && TheArgs.Exclude == nil {
-		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
-		compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
-		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
-		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
-		doSomething = true
-	}
-	if doSomething {
-		fmt.Println("Done comparing Kuberentes global objects.")
-	}
-}
-
 // filterNamespaces filters namespaces based on the wildcard pattern
 func filterNamespaces(namespaces *v1.NamespaceList, pattern string) *v1.NamespaceList {
 	matchingNamespaces := v1.NamespaceList{
@@ -278,5 +230,30 @@ func DetectNamespacePattern(pattern string) string {
 		return "wildcard"
 	} else {
 		return "specific"
+	}
+}
+
+func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace, resource string, TheArgs cli.ArgumentsReceivedValidated) {
+	switch resource {
+	case "deployment":
+		compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "ingress":
+		compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "service":
+		compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "sa":
+		compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "configmap":
+		compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "secret":
+		compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "role":
+		compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "rolebinding":
+		compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "hpa":
+		compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "cronjob":
+		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 	}
 }

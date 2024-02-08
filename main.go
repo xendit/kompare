@@ -201,6 +201,33 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
 }
 
+func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace, resource string, TheArgs cli.ArgumentsReceivedValidated) {
+	switch resource {
+	case "deployment":
+		compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "ingress":
+		compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "service":
+		compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "sa":
+		compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "configmap":
+		compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "secret":
+		compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "role":
+		compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "rolebinding":
+		compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "hpa":
+		compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "cronjob":
+		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	}
+
+	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
 // filterNamespaces filters namespaces based on the wildcard pattern
 func filterNamespaces(namespaces *v1.NamespaceList, pattern string) *v1.NamespaceList {
 	matchingNamespaces := v1.NamespaceList{
@@ -230,30 +257,5 @@ func DetectNamespacePattern(pattern string) string {
 		return "wildcard"
 	} else {
 		return "specific"
-	}
-}
-
-func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace, resource string, TheArgs cli.ArgumentsReceivedValidated) {
-	switch resource {
-	case "deployment":
-		compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "ingress":
-		compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "service":
-		compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "sa":
-		compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "configmap":
-		compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "secret":
-		compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "role":
-		compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "rolebinding":
-		compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "hpa":
-		compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
-	case "cronjob":
-		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 	}
 }

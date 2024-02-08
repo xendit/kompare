@@ -1,9 +1,12 @@
-# kompare
+# Kompare
 
-So you need to compare two kubernetes cluters, they are supposed to be completely or partially aquivalent. You can find tools that actually do some comparison, but we could not find one that we could give it comparison criteria for all the kubernetes objects we needed to compare. Criteria like ignore Kuberentes resource definition subtypes that are always different like UID, Dates, and other objects content that will never match even when they are the same. This is just one of the issues we had and why we decided to create this tool. 
-kompare is a Go CLI runner to compare two clusters. This software compares two kubernetes cluster using kubeconfig to connect to them and compare existing objects in the two clusters based on flexible criteria passed via command line.
+Kompare is a Go CLI runner to compare two clusters. This software compares two kubernetes cluster using kubeconfig to connect to them and compare existing objects in the two clusters based on flexible criteria passed via command line.
+
+So you need to compare two kubernetes clusters. They are supposed to be completely or partially equal or equivalent. You can find tools that actually do some comparison, but we could not find one that we could give it comparison criteria for all the kubernetes objects we needed to compare. Criteria like ignore Kuberentes resource definition subtypes that are always different like UID, Dates, and other objects content that will never match even when they are the same. To give other examples Filter and compare ONLY namespaces whose name ends with '*-pci' or cimpare only the deployments and config maps and secrets. This is just some of the issues you might face while comparing two kubernetes lcusters. That is the reason why we decided to create this tool. 
+
 ## Why do we need kompare
-This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way. The practical/real work we use the tool for is to compare a source cluster that is currently in production with a new cluster that we intend to put in prod. Therefore the source cluster "tends" to be considered the source of truth for the comparison.
+This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way. The practical/real work we use the tool for is to compare a source cluster that is currently in production with a new cluster that we intend to put in prod to replace it to to work side by side. 
+**Notice:** Therefore the source cluster "tends" to be considered the source of truth for the comparison.
 
 ## Key terms & help to use the tool.
 1. Source cluster refers to the origin cluster. If this was a number comparison then the source cluster would be the "left-hand side" (LHS) or "antecedent".

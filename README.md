@@ -1,6 +1,7 @@
 # kompare
 
-Go CLI runner to compare two clusters. This software compares two kubernetes cluster using kubeconfig to connect to them and compare existing objects in the two clusters.
+So you need to compare two kubernetes cluters, they are supposed to be completely or partially aquivalent. You can find tools that actually do some comparison, but we could not find one that we could give it comparison criteria for all the kubernetes objects we needed to compare. Criteria like ignore Kuberentes resource definition subtypes that are always different like UID, Dates, and other objects content that will never match even when they are the same. This is just one of the issues we had and why we decided to create this tool. 
+kompare is a Go CLI runner to compare two clusters. This software compares two kubernetes cluster using kubeconfig to connect to them and compare existing objects in the two clusters based on flexible criteria passed via command line.
 ## Why do we need kompare
 This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way. The practical/real work we use the tool for is to compare a source cluster that is currently in production with a new cluster that we intend to put in prod. Therefore the source cluster "tends" to be considered the source of truth for the comparison.
 
@@ -46,7 +47,7 @@ So far only the -t option is required.
 
 This is a project currently in dev, the best way to use it it to do a go build or to just run it in the console with something like:
 ```
-go run main.go -t some target context.
+go run main.go -t some-target-context.
 ```
 ### example command:
 Compare current contect to "MySecondContext-Cluster" use the -v or verbose option, to see the actual diffs. Then -e option is to exclude in this case services ,roles & role bindings for the namespace called velero.
@@ -98,5 +99,5 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Contributing
 
-PRs are testing and opening issues are all welcome!
+PRs, testing and opening issues are all welcome!
 

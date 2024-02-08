@@ -92,7 +92,7 @@ Finished Config Maps (CM) for namespace:  velero
 ... Done with all resources in ns: velero.
 Finished!
 ```
-**Notice:** The software will assume you want to use your current context as source cluster to compare from (-s or --source to set a different context). Then the -t option is required and its the destination cluster. 
+**Notice:** The software will assume you want to use your current context as source cluster to compare from (-s or --source to set a different source context). Then the -t option is required and its the destination cluster. 
 
 ### Prerequisites
 

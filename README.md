@@ -4,7 +4,7 @@ Kompare is a Go CLI runner to compare two clusters. This software compares two k
 
 So you need to compare two kubernetes clusters. They are supposed to be completely or partially equal or equivalent. You can find tools that actually do some comparison, but we could not find one that we could give it comparison criteria for all the kubernetes objects we needed to compare. Criteria like ignore Kuberentes resource definition subtypes that are always different like UID, Dates, and other objects content that will never match even when they are the same. To give other examples Filter and compare ONLY namespaces whose name ends with '*-pci' or cimpare only the deployments and config maps and secrets. This is just some of the issues you might face while comparing two kubernetes lcusters. That is the reason why we decided to create this tool. 
 
-## Why do we need kompare
+## Why do we need Kompare
 This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way. The practical/real work we use the tool for is to compare a source cluster that is currently in production with a new cluster that we intend to put in prod to replace it to to work side by side. 
 **Notice:** Therefore the source cluster "tends" to be considered the source of truth for the comparison.
 
@@ -97,8 +97,6 @@ Finished!
 ### Prerequisites
 
 It's a golang program and has been tested on Mac Silicon Procesors, but should work on other architectures and Operating systems as well. If you need to compile install golang preferably `go 1.21.6` version or higher.
-
-End with an example of getting some data out of the system or using it for a little demo.
 
 ## Contributing
 

@@ -182,6 +182,7 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 			fmt.Printf("%s\n", titleResource)
 			compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
 			fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
+
 		}
 	}
 

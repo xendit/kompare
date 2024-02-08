@@ -59,195 +59,145 @@ func main() {
 }
 
 func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
-	// Comparing resources per namespace (Namespaced resources).
-	if (TheArgs.Include == nil && TheArgs.Exclude == nil) || tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Include) || tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Exclude) {
+	// Check if include or exclude lists are provided, or if no specific lists are provided
+	if TheArgs.Include == nil && TheArgs.Exclude == nil {
+		// If no include or exclude lists are provided, compare all resources for each namespace
 		for _, ns := range sourceNameSpacesList.Items {
-			fmt.Printf("Looping on NS: %s\n", ns.Name)
-			if TheArgs.Exclude == nil && TheArgs.Include == nil {
-				fmt.Println("Deployments")
-				compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished deployments for namespace: ", ns.Name)
-				fmt.Println("Services")
-				compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Services for namespace: ", ns.Name)
-				fmt.Println("Service Accounts")
-				compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-				fmt.Println("Secrets")
-				compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Secrets for namespace: ", ns.Name)
-				fmt.Println("Config Maps (CM)")
-				compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-				fmt.Println("Roles (RBAC)")
-				compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-				fmt.Println("Role Bindings (RBAC)")
-				compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
-				fmt.Println("Ingress")
-				compare.CompareIngresses(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Ingreess for namespace: ", ns.Name)
-				fmt.Println("HPAs")
-				compare.CompareHPAs(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished HPAs for namespace: ", ns.Name)
-				fmt.Println("Cron Jobs")
-				compare.CompareCronJobs(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-				fmt.Println("Finished Cron Jobs for namespace: ", ns.Name)
-			}
-			if TheArgs.Exclude != nil && tools.AreAnyInLists([]string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}, TheArgs.Exclude) {
-				if tools.IsInList("deployment", TheArgs.Exclude) == false {
-					fmt.Println("Deployments")
-					compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished deployments for namespace: ", ns.Name)
-				}
-				// End Deployment
-				if tools.IsInList("service", TheArgs.Exclude) == false {
-					// - Services (Spec, Metadata.Annotations, Metadata.Labels )
-					fmt.Println("Services")
-					compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Services for namespace: ", ns.Name)
-				}
-				// End services
-				if tools.IsInList("sa", TheArgs.Exclude) == false {
-					// - Service accounts (Metadata.Annotations, Metadata.Labels)
-					fmt.Println("Service Accounts")
-					compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-				}
-				// End Service accounts
-				if tools.IsInList("secret", TheArgs.Exclude) == false {
-					// - Secrets (Type, Data?)
-					fmt.Println("Secrets")
-					compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Secrets for namespace: ", ns.Name)
-				}
-				// End Secrets
-				// - Config Maps (criteria)
-				if tools.IsInList("configmap", TheArgs.Exclude) == false {
-					fmt.Println("Config Maps (CM)")
-					// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-					// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-					compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-				}
-				// End Config maps
-				if tools.IsInList("role", TheArgs.Exclude) == false {
-					// - Roles
-					fmt.Println("Roles (RBAC)")
-					compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-				}
-				// End Roles
-				if tools.IsInList("role", TheArgs.Exclude) == false {
-					// - Role Bindings
-					fmt.Println("Role Bindings (RBAC)")
-					compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
-				}
-			}
-			if TheArgs.Exclude == nil && TheArgs.Include != nil {
-				if tools.IsInList("deployment", TheArgs.Include) == true {
-					fmt.Println("Deployments")
-					compare.CompareDeployments(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished deployments for namespace: ", ns.Name)
-				}
-				// End Deployment
-				if tools.IsInList("service", TheArgs.Include) == true {
-					// - Services (Spec, Metadata.Annotations, Metadata.Labels )
-					fmt.Println("Services")
-					compare.CompareServices(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Services for namespace: ", ns.Name)
-				}
-				// End services
-				if tools.IsInList("sa", TheArgs.Include) == true {
-					// - Service accounts (Metadata.Annotations, Metadata.Labels)
-					fmt.Println("Service Accounts")
-					compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Services Accounts for namespace: ", ns.Name)
-				}
-				// End Service accounts
-				if tools.IsInList("secret", TheArgs.Include) == true {
-					// - Secrets (Type, Data?)
-					fmt.Println("Secrets")
-					compare.CompareSecrets(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Secrets for namespace: ", ns.Name)
-				}
-				// End Secrets
-				// - Config Maps (criteria)
-				if tools.IsInList("configmap", TheArgs.Include) == true {
-					fmt.Println("Config Maps (CM)")
-					// compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-					// compare.GenericCompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, &TheArgs.VerboseDiffs)
-					compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Config Maps (CM) for namespace: ", ns.Name)
-				}
-				// End Config maps
-				if tools.IsInList("role", TheArgs.Include) == true {
-					// - Roles
-					fmt.Println("Roles (RBAC)")
-					compare.CompareRoles(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Roles (RBAC) for namespace: ", ns.Name)
-				}
-				// End Roles
-				if tools.IsInList("role", TheArgs.Include) == true {
-					// - Role Bindings
-					fmt.Println("Role Bindings (RBAC)")
-					compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-					fmt.Println("Finished Role Bindings (RBAC) for namespace: ", ns.Name)
-				}
-			}
-			// End Role Bindings
-			fmt.Printf("... Done with all resources in ns: %s.\n", ns.Name)
+			compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+		}
+	} else {
+		// Compare resources based on include or exclude lists
+		for _, ns := range sourceNameSpacesList.Items {
+			compareResourcesByLists(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 		}
 	}
 }
 
-func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
-	// Comparing namespaces.
-	// notice that this fuction returns a diff to be used if we use tests instead of CLI
-	doSomething := false
-	if TheArgs.Include != nil &&
-		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Include) {
-		if tools.IsInList("namespace", TheArgs.Include) == true {
-			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("crd", TheArgs.Include) == true {
-			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
-		}
-		if tools.IsInList("clusterrole", TheArgs.Include) == true {
-			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("clusterrolebinding", TheArgs.Include) == true {
-			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		doSomething = true
+func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
+	fmt.Printf("Looping on Namespace: %s\n", namespace)
+
+	// Compare all resources for the namespace
+	resources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+	for _, resource := range resources {
+		fmt.Printf("%s\n", strings.Title(resource))
+		compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+		fmt.Printf("Finished %s for namespace: %s\n", strings.Title(resource), namespace)
 	}
-	if TheArgs.Exclude != nil &&
-		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Exclude) {
-		if tools.IsInList("namespace", TheArgs.Exclude) == false {
-			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
+
+	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
+func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
+	fmt.Printf("Looping on NS: %s\n", namespace)
+
+	includeResources := TheArgs.Include
+	excludeResources := TheArgs.Exclude
+
+	// Compare resources based on include list
+	if includeResources != nil {
+		for _, resource := range includeResources {
+			fmt.Printf("%s\n", strings.Title(resource))
+			compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+			fmt.Printf("Finished %s for namespace: %s\n", strings.Title(resource), namespace)
 		}
-		if tools.IsInList("crd", TheArgs.Exclude) == false {
-			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
-		}
-		if tools.IsInList("clusterrole", TheArgs.Exclude) == false {
-			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		if tools.IsInList("clusterrolebinding", TheArgs.Exclude) == false {
-			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
-		}
-		doSomething = true
 	}
-	if TheArgs.Include == nil && TheArgs.Exclude == nil {
-		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
-		compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
-		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
-		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
-		doSomething = true
+
+	// Compare resources based on exclude list
+	if excludeResources != nil {
+		allResources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}
+		for _, resource := range allResources {
+			if !tools.IsInList(resource, excludeResources) {
+				fmt.Printf("%s\n", strings.Title(resource))
+				compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+				fmt.Printf("Finished %s for namespace: %s\n", strings.Title(resource), namespace)
+			}
+		}
 	}
-	if doSomething {
-		fmt.Println("Done comparing Kuberentes global objects.")
+
+	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
+func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace, resource string, TheArgs cli.ArgumentsReceivedValidated) {
+	switch resource {
+	case "deployment":
+		compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "ingress":
+		compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "service":
+		compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "sa":
+		compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "configmap":
+		compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "secret":
+		compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "role":
+		compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "rolebinding":
+		compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "hpa":
+		compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	case "cronjob":
+		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	}
+}
+
+func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, args cli.ArgumentsReceivedValidated) {
+	// Flag to track if any comparison was performed
+	comparisonPerformed := false
+
+	// Compare objects based on include list
+	if args.Include != nil {
+		includeObjects := []string{"namespace", "crd", "clusterrole", "clusterrolebinding"}
+		for _, objectType := range includeObjects {
+			if tools.IsInList(objectType, args.Include) {
+				switch objectType {
+				case "namespace":
+					compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+				case "crd":
+					compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+				case "clusterrole":
+					compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+				case "clusterrolebinding":
+					compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+				}
+				comparisonPerformed = true
+			}
+		}
+	}
+
+	// Compare objects based on exclude list
+	if args.Exclude != nil {
+		excludeObjects := []string{"namespace", "crd", "clusterrole", "clusterrolebinding"}
+		for _, objectType := range excludeObjects {
+			if !tools.IsInList(objectType, args.Exclude) {
+				switch objectType {
+				case "namespace":
+					compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+				case "crd":
+					compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+				case "clusterrole":
+					compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+				case "clusterrolebinding":
+					compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+				}
+				comparisonPerformed = true
+			}
+		}
+	}
+
+	// If no include or exclude lists are provided, perform default comparisons
+	if args.Include == nil && args.Exclude == nil {
+		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+		compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+		comparisonPerformed = true
+	}
+
+	// Print completion message if any comparison was performed
+	if comparisonPerformed {
+		fmt.Println("Done comparing Kubernetes global objects.")
 	}
 }
 

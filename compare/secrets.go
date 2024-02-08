@@ -27,5 +27,5 @@ func CompareSecrets(clientsetToSource, clientsetToTarget *kubernetes.Clientset, 
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceSecrets, targetSecrets, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceSecrets, targetSecrets, diffCriteria, TheArgs)
 }

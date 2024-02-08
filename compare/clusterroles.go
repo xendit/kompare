@@ -27,5 +27,5 @@ func CompareClusterRoles(clientsetToSource, clientsetToTarget *kubernetes.Client
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceClusterRoles, targetClusterRoles, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceClusterRoles, targetClusterRoles, diffCriteria, TheArgs)
 }

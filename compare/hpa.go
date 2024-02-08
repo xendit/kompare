@@ -27,5 +27,5 @@ func CompareHPAs(clientsetToSource, clientsetToTarget *kubernetes.Clientset, nam
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceHPAs, targetHPAs, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceHPAs, targetHPAs, diffCriteria, TheArgs)
 }

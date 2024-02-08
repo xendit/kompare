@@ -27,5 +27,5 @@ func CompareIngresses(clientsetToSource, clientsetToTarget *kubernetes.Clientset
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceIngresses, targetIngresses, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceIngresses, targetIngresses, diffCriteria, TheArgs)
 }

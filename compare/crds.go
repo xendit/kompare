@@ -26,5 +26,5 @@ func CompareCRDs(targetContext, configFile string, TheArgs cli.ArgumentsReceived
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceCRDs, targetCRDs, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceCRDs, targetCRDs, diffCriteria, TheArgs)
 }

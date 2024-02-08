@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-test/deep"
 
+	"kompare/cli"
 	"kompare/tools"
 
 	v1 "k8s.io/api/apps/v1"
@@ -343,7 +344,7 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 // It also performs a deep comparison of resources based on the specified diffCriteria using the DeepCompare function.
 // The function returns a slice of DiffWithName containing the differences between the source and target resources,
 // along with any error encountered during the comparison.
-func ShowResourceComparison(sourceResource, targetResource interface{}, diffCriteria []string) ([]DiffWithName, error) {
+func ShowResourceComparison(sourceResource, targetResource interface{}, diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 	lensourceResource := GenericCountListElements(sourceResource)
 	lentargetResource := GenericCountListElements(targetResource)
@@ -351,27 +352,37 @@ func ShowResourceComparison(sourceResource, targetResource interface{}, diffCrit
 
 	messageheading := "* These two cluster do not have the same number of " + resourceType + ", please check it manually! *"
 	lenMessageheading := len(messageheading)
-	if lentargetResource != lensourceResource {
+	if args.VerboseDiffs != 0 {
+		if lentargetResource != lensourceResource {
 
+			fmt.Println(strings.Repeat("*", lenMessageheading))
+			fmt.Println(messageheading)
+			fmt.Println(strings.Repeat("*", lenMessageheading))
+			CompareNumbersGenericOutput(lensourceResource, lentargetResource, targetResource)
+		}
+		fmt.Println(strings.Repeat("*", lenMessageheading))
+		sourceMessageTemplate := "- First cluster has %s: %s, but it's not in the second cluster\n"
+		resultStringsSvT := CompareByName(sourceResource, targetResource, sourceMessageTemplate)
+		if len(resultStringsSvT) > 0 {
+			fmt.Println(strings.Repeat("*", lenMessageheading))
+		} else {
+			fmt.Println("Done compering source cluster versus target cluster's ", resourceType)
+		}
+		targetmessageTemplate := "- Second cluster has %s: %s, but it's not in the first cluster\n"
+		resultStringsTvS := CompareByName(targetResource, sourceResource, targetmessageTemplate)
+		if len(resultStringsTvS) > 0 {
+			fmt.Println(strings.Repeat("*", lenMessageheading))
+		} else {
+			fmt.Println("Done compering target cluster versus source cluster's ", resourceType)
+		}
+		TheDiff = DeepCompare(targetResource, sourceResource, diffCriteria)
+		return TheDiff, nil
+	}
+	if lentargetResource != lensourceResource {
 		fmt.Println(strings.Repeat("*", lenMessageheading))
 		fmt.Println(messageheading)
 		fmt.Println(strings.Repeat("*", lenMessageheading))
 		CompareNumbersGenericOutput(lensourceResource, lentargetResource, targetResource)
-	}
-	fmt.Println(strings.Repeat("*", lenMessageheading))
-	sourceMessageTemplate := "- First cluster has %s: %s, but it's not in the second cluster\n"
-	resultStringsSvT := CompareByName(sourceResource, targetResource, sourceMessageTemplate)
-	if len(resultStringsSvT) > 0 {
-		fmt.Println(strings.Repeat("*", lenMessageheading))
-	} else {
-		fmt.Println("Done compering source cluster versus target cluster's ", resourceType)
-	}
-	targetmessageTemplate := "- Second cluster has %s: %s, but it's not in the first cluster\n"
-	resultStringsTvS := CompareByName(targetResource, sourceResource, targetmessageTemplate)
-	if len(resultStringsTvS) > 0 {
-		fmt.Println(strings.Repeat("*", lenMessageheading))
-	} else {
-		fmt.Println("Done compering target cluster versus source cluster's ", resourceType)
 	}
 	TheDiff = DeepCompare(targetResource, sourceResource, diffCriteria)
 	return TheDiff, nil
@@ -415,14 +426,19 @@ func FormatDiffHumanReadable(differences []DiffWithName) string {
 // If boolverboseDiffs is false, it performs a regular comparison using ShowResourceComparison without verbose output.
 // The function returns a slice of DiffWithName containing the differences between the source and target namespaces,
 // along with any error encountered during the comparison.
-func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList interface{}, diffCriteria []string, boolverboseDiffs *bool) ([]DiffWithName, error) {
-	if *boolverboseDiffs {
-		TheDiff, err := ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria)
-		fmt.Println(FormatDiffHumanReadable(TheDiff))
-		return TheDiff, err
-	} else {
-		return ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria)
+func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList interface{}, diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
+	if args.VerboseDiffs != 0 {
+		if args.VerboseDiffs > 1 {
+			TheDiff, err := ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria, args)
+			fmt.Println(FormatDiffHumanReadable(TheDiff))
+			return TheDiff, err
+		} else if args.VerboseDiffs == 1 {
+			return ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria, args)
+		}
+
 	}
+	// sumary goes here.
+	return ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria, args)
 }
 
 // GenericCompareResources compares resources between two Kubernetes clusters based on specified criteria.
@@ -435,7 +451,7 @@ func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList inter
 // It then performs a comparison between the resources from both clusters using the CompareVerboseVSNonVerbose function.
 // The function returns a slice of DiffWithName containing the differences between the source and target resources,
 // along with any error encountered during the comparison.
-func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, resourceGetter func(*kubernetes.Clientset, string) (interface{}, error), diffCriteria []string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, resourceGetter func(*kubernetes.Clientset, string) (interface{}, error), diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 	var TheDiff []DiffWithName
 
 	sourceResources, err := resourceGetter(clientsetToSource, namespaceName)
@@ -459,5 +475,5 @@ func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Cl
 		return TheDiff, fmt.Errorf("unexpected type for target resources")
 	}
 
-	return CompareVerboseVSNonVerbose(sourceSlice, targetSlice, diffCriteria, boolverboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceSlice, targetSlice, diffCriteria, args)
 }

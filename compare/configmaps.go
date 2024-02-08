@@ -28,12 +28,12 @@ func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientse
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, TheArgs)
 }
 
-func GenericCompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {
+func GenericCompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
 	diffCriteria := []string{"Data", "Name", "Annotations"}
-	return GenericCompareResources(clientsetToSource, clientsetToTarget, namespaceName, query.ListConfigMapsGeneric, diffCriteria, boolverboseDiffs)
+	return GenericCompareResources(clientsetToSource, clientsetToTarget, namespaceName, query.ListConfigMapsGeneric, diffCriteria, TheArgs)
 }
 
 // func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, boolverboseDiffs *bool) ([]DiffWithName, error) {

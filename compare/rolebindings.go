@@ -28,5 +28,5 @@ func CompareRoleBindings(clientsetToSource, clientsetToTarget *kubernetes.Client
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceRoleBindings, targetRoleBindings, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceRoleBindings, targetRoleBindings, diffCriteria, TheArgs)
 }

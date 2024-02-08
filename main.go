@@ -71,6 +71,7 @@ func main() {
 	fmt.Println("Finished all comparison works!")
 }
 
+<<<<<<< HEAD
 func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, args cli.ArgumentsReceivedValidated) {
 	// Flag to track if any comparison was performed
 	comparisonPerformed := false
@@ -227,6 +228,121 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 	}
 
 	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
+func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
+	// Check if include or exclude lists are provided, or if no specific lists are provided
+	if TheArgs.Include == nil && TheArgs.Exclude == nil {
+		// If no include or exclude lists are provided, compare all resources for each namespace
+		for _, ns := range sourceNameSpacesList.Items {
+			compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+		}
+	} else {
+		// Compare resources based on include or exclude lists
+		for _, ns := range sourceNameSpacesList.Items {
+			compareResourcesByLists(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+		}
+	}
+}
+
+func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
+	fmt.Printf("Looping on NS: %s\n", namespace)
+
+	// Compare all resources for the namespace
+	resources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+	for _, resource := range resources {
+		fmt.Printf("%s\n", strings.Title(resource))
+		compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+		fmt.Printf("Finished %s for namespace: %s\n", strings.Title(resource), namespace)
+	}
+
+	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
+func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
+	fmt.Printf("Looping on NS: %s\n", namespace)
+
+	includeResources := TheArgs.Include
+	excludeResources := TheArgs.Exclude
+
+	// Create a title case converter for English
+	titleCase := cases.Title(language.English)
+
+	// Define all resources
+	allResources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}
+
+	// Compare resources based on include list
+	if includeResources != nil {
+		for _, resource := range includeResources {
+			titleResource := titleCase.String(resource)
+			fmt.Printf("%s\n", titleResource)
+			compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+			fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
+		}
+	}
+
+	// Compare resources based on exclude list
+	if excludeResources != nil {
+		for _, resource := range allResources {
+			// Check if resource is not in the exclude list
+			if !tools.IsInList(resource, excludeResources) {
+				titleResource := titleCase.String(resource)
+				fmt.Printf("%s\n", titleResource)
+				compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+				fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
+			}
+		}
+	}
+
+	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
+func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
+	// Comparing namespaces.
+	// notice that this fuction returns a diff to be used if we use tests instead of CLI
+	doSomething := false
+	if TheArgs.Include != nil &&
+		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Include) {
+		if tools.IsInList("namespace", TheArgs.Include) == true {
+			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
+		}
+		if tools.IsInList("crd", TheArgs.Include) == true {
+			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
+		}
+		if tools.IsInList("clusterrole", TheArgs.Include) == true {
+			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
+		}
+		if tools.IsInList("clusterrolebinding", TheArgs.Include) == true {
+			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
+		}
+		doSomething = true
+	}
+	if TheArgs.Exclude != nil &&
+		tools.AreAnyInLists([]string{"namespace", "crd", "clusterrole", "clusterrolebinding"}, TheArgs.Exclude) {
+		if tools.IsInList("namespace", TheArgs.Exclude) == false {
+			compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
+		}
+		if tools.IsInList("crd", TheArgs.Exclude) == false {
+			compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
+		}
+		if tools.IsInList("clusterrole", TheArgs.Exclude) == false {
+			compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
+		}
+		if tools.IsInList("clusterrolebinding", TheArgs.Exclude) == false {
+			compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
+		}
+		doSomething = true
+	}
+	if TheArgs.Include == nil && TheArgs.Exclude == nil {
+		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, TheArgs)
+		compare.CompareCRDs(TheArgs.TargetClusterContext, TheArgs.KubeconfigFile, TheArgs)
+		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, TheArgs)
+		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, TheArgs)
+		doSomething = true
+	}
+	if doSomething {
+		fmt.Println("Done comparing Kuberentes global objects.")
+	}
 }
 
 // filterNamespaces filters namespaces based on the wildcard pattern

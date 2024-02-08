@@ -28,5 +28,5 @@ func CompareNameSpaces(clientsetToSource, clientsetToTarget *kubernetes.Clientse
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList, diffCriteria, TheArgs)
 }

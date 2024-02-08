@@ -130,30 +130,19 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 	}
 }
 
-func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
-	// Check if include or exclude lists are provided, or if no specific lists are provided
-	if TheArgs.Include == nil && TheArgs.Exclude == nil {
-		// If no include or exclude lists are provided, compare all resources for each namespace
-		for _, ns := range sourceNameSpacesList.Items {
-			compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-		}
-	} else {
-		// Compare resources based on include or exclude lists
-		for _, ns := range sourceNameSpacesList.Items {
-			compareResourcesByLists(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
-		}
-	}
-}
-
 func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
-	fmt.Printf("Looping on NS: %s\n", namespace)
-
+	fmt.Printf("Looping on Namespace: %s\n", namespace)
 	// Compare all resources for the namespace
 	resources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+
+	// Create a title case converter for English
+	titleCase := cases.Title(language.English)
+
 	for _, resource := range resources {
-		fmt.Printf("%s\n", strings.Title(resource))
+		titleResource := titleCase.String(resource)
+		fmt.Printf("%s\n", titleResource)
 		compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
-		fmt.Printf("Finished %s for namespace: %s\n", strings.Title(resource), namespace)
+		fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
 	}
 
 	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
@@ -178,6 +167,7 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 			fmt.Printf("%s\n", titleResource)
 			compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
 			fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
+
 		}
 	}
 
@@ -219,6 +209,23 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 		compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 	case "cronjob":
 		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+	}
+
+	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
+}
+
+func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {
+	// Check if include or exclude lists are provided, or if no specific lists are provided
+	if TheArgs.Include == nil && TheArgs.Exclude == nil {
+		// If no include or exclude lists are provided, compare all resources for each namespace
+		for _, ns := range sourceNameSpacesList.Items {
+			compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+		}
+	} else {
+		// Compare resources based on include or exclude lists
+		for _, ns := range sourceNameSpacesList.Items {
+			compareResourcesByLists(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
+		}
 	}
 }
 

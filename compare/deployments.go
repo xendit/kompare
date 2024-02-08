@@ -28,5 +28,5 @@ func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clients
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceDeployments, targetDeplotments, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceDeployments, targetDeplotments, diffCriteria, TheArgs)
 }

@@ -28,5 +28,5 @@ func CompareRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, na
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceRoles, targetRoles, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceRoles, targetRoles, diffCriteria, TheArgs)
 }

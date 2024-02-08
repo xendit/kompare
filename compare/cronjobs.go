@@ -27,5 +27,5 @@ func CompareCronJobs(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceCronJobs, targetCronJobs, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceCronJobs, targetCronJobs, diffCriteria, TheArgs)
 }

@@ -27,5 +27,5 @@ func CompareServiceAccounts(clientsetToSource, clientsetToTarget *kubernetes.Cli
 	} else {
 		diffCriteria = tools.ParseCommaSeparateList(TheArgs.FiltersForObject)
 	}
-	return CompareVerboseVSNonVerbose(sourceServiceAccounts, targetServiceAccounts, diffCriteria, &TheArgs.VerboseDiffs)
+	return CompareVerboseVSNonVerbose(sourceServiceAccounts, targetServiceAccounts, diffCriteria, TheArgs)
 }

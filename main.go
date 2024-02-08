@@ -149,7 +149,7 @@ func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubern
 }
 
 func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
-	fmt.Printf("Looping on NS: %s\n", namespace)
+	fmt.Printf("Looping namespace: %s\n", namespace)
 
 	includeResources := TheArgs.Include
 	excludeResources := TheArgs.Exclude
@@ -183,8 +183,6 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 			}
 		}
 	}
-
-	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
 }
 
 func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace, resource string, TheArgs cli.ArgumentsReceivedValidated) {
@@ -210,8 +208,6 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 	case "cronjob":
 		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 	}
-
-	fmt.Printf("... Done with all resources in ns: %s.\n", namespace)
 }
 
 func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) {

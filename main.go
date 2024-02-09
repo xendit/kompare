@@ -21,8 +21,8 @@ func main() {
 	// Parse CLI arguments
 	args := cli.PaserReader()
 	if args.Err != nil {
-		fmt.Printf("Error parsing arguments: %v\n", args.Err)
-		return
+		err := fmt.Errorf("Error parsing arguments: %v", args.Err)
+		panic(err)
 	}
 
 	// Connect to source cluster
@@ -35,8 +35,8 @@ func main() {
 	// Connect to target cluster
 	clientsetToTarget, err := connect.ContextSwitch(args.TargetClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		fmt.Printf("Error switching context: %v\n", err)
-		return
+		err = fmt.Errorf("Error switching context: %v\n", err)
+		panic(err)
 	}
 
 	// Determine namespace argument type
@@ -50,19 +50,15 @@ func main() {
 		sourceNameSpacesList = &v1.NamespaceList{Items: []v1.Namespace{*sourceNameSpace}}
 	case "wildcard":
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
-		if err != nil {
-			fmt.Printf("Error listing namespaces: %v\n", err)
-			return
-		}
 		sourceNameSpacesList = filterNamespaces(sourceNameSpacesList, args.NamespaceName)
 	case "empty":
 		iterateGoglabObjects(clientsetToSource, clientsetToTarget, args)
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
-		if err != nil {
-			fmt.Printf("Error listing namespaces: %v\n", err)
-			return
-		}
 		sourceNameSpace = nil
+	}
+	if err != nil {
+		err = fmt.Errorf("Error listing namespaces: %v\n", err)
+		panic(err)
 	}
 
 	// Iterate over namespaces
@@ -71,7 +67,7 @@ func main() {
 	fmt.Println("Finished all comparison works!")
 }
 
-func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, args cli.ArgumentsReceivedValidated) {
+func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clientset, args cli.ArgumentsReceivedValidated) bool {
 	// Flag to track if any comparison was performed
 	comparisonPerformed := false
 
@@ -128,6 +124,7 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 	if comparisonPerformed {
 		fmt.Println("Done comparing Kubernetes global objects.")
 	}
+	return comparisonPerformed
 }
 
 func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {

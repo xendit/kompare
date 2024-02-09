@@ -41,7 +41,7 @@ func PaserReader() ArgumentsReceivedValidated {
 	kubeconfigFile := parser.String("c", "conf", &argparse.Options{Required: false, Help: "Path to the clusters kubeconfig; assume ~/.kube/config if not provided"})
 	sourceClusterContext := parser.String("s", "src", &argparse.Options{Required: false, Help: "The Source cluster's context. Origin cluster in the comparison (LHS-left hand side)"})
 	targetClusterContext := parser.String("t", "target", &argparse.Options{Required: true, Help: "*The target cluster's context (Required). Cluster used as destination or consequent (RHS - Right hand side)"})
-	verboseDiffs := parser.FlagCounter("v", "verbose", &argparse.Options{Help: "Just show me all the diffs too. Notice: the output might be LONG!"})
+	verboseDiffs := parser.FlagCounter("v", "verbose", &argparse.Options{Help: "-v lists the differences and -vv just shows all the diffs too."})
 	IncludeK8sObjects := parser.String("i", "include", &argparse.Options{Help: "List of kubernetes objects names to include, this should be an element or a comma separated list."})
 	Excludek8sObjects := parser.String("e", "exclude", &argparse.Options{Help: "List of kubernetes objects to include, this should be an element or a comma separated list."})
 	namespaceName := parser.String("n", "namespace", &argparse.Options{Help: "Namespace that needs to be copied. defaults to 'default' namespace. The option also accepts wilcard matching of namespace. E.G.: '*-pci' would match any namespace that ends with -pci. Notice that the '' might be required in some consoles like iterm"})

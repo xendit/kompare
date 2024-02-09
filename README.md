@@ -29,8 +29,8 @@ Arguments:
                    comparison (LHS-left hand side)
   -t  --target     *The target cluster's context (Required). Cluster used as
                    destination or consequent (RHS - Right hand side)
-  -v  --verbose    Just show me all the diffs too. Notice: the output might be
-                   LONG!
+  -v  --verbose    -v lists the differences and -vv just shows all the diffs
+                   too.
   -i  --include    List of kubernetes objects names to include, this should be
                    an element or a comma separated list.
   -e  --exclude    List of kubernetes objects to include, this should be an

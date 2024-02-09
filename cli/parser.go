@@ -74,7 +74,6 @@ func PaserReader() ArgumentsReceivedValidated {
 		Err:                  err}
 	ArgumentsReceivedValidated := ValidateParametersFromParserArgs(TheArgs)
 	return ArgumentsReceivedValidated
-
 }
 
 // ValidateParametersFromParserArgs validates the arguments received from the command-line parser.
@@ -188,6 +187,5 @@ func ValidateKubernetesObjects(objects []string) ([]string, []string) {
 			invalidObjects = append(invalidObjects, obj)
 		}
 	}
-
 	return invalidObjects, validObjectsStr
 }

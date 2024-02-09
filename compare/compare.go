@@ -474,6 +474,7 @@ func FormatDiffHumanReadable(differences []DiffWithName) string {
 	}
 	return formattedDiff.String()
 }
+
 func isJSONCompatible(jsonStr string) bool {
 	var data interface{}
 	err := json.Unmarshal([]byte(jsonStr), &data)

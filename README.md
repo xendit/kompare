@@ -100,5 +100,9 @@ It's a golang program and has been tested on Mac Silicon Procesors, but should w
 
 ## Contributing
 
-PRs, testing and opening issues are all welcome!
+PRs, testing and opening issues are all welcome! We are currently busy with the following:
+1. Add more & better test cases.
+2. Improve visualization, the sumary view should be better.
+3. Improve the visualizations for the diffs in the -vv mode.
+4. Issues and bug fixes.
 

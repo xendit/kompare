@@ -33,7 +33,24 @@ func StartMockCluster() (string, *http.ServeMux) {
 				},
 			},
 		}
-
+		// Extract the namespace name from the request URL
+		// parts := strings.Split(r.URL.Path, "/")
+		// if len(parts) < 5 {
+		// 	http.Error(w, "Invalid request", http.StatusBadRequest)
+		// 	return
+		// }
+		// namespace := parts[4] // Get the namespace name from the URL
+		// for _, i := range namespaces {
+		// 	if i.Name == namespace {
+		// 		namespaces = []Corev1.Namespace{
+		// 			{
+		// 				ObjectMeta: metav1.ObjectMeta{
+		// 					Name: namespace,
+		// 				},
+		// 			},
+		// 		}
+		// 	}
+		// }
 		// Create a NamespaceList response structure
 		namespaceList := struct {
 			Kind  string             `json:"kind"`

@@ -2,6 +2,7 @@ package compare
 
 import (
 	"fmt"
+	"kompare/DAO"
 	"kompare/cli"
 	"kompare/query"
 	"kompare/tools"
@@ -9,8 +10,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareIngresses(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
-	var TheDiff []DiffWithName
+func CompareIngresses(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
+	var TheDiff []DAO.DiffWithName
 	sourceIngresses, err := query.ListIngresses(clientsetToSource, namespaceName)
 	if err != nil {
 		fmt.Printf("Error getting services list: %v\n", err)

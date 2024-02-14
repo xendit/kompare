@@ -2,6 +2,7 @@ package compare
 
 import (
 	"fmt"
+	"kompare/DAO"
 	"kompare/cli"
 	"kompare/query"
 	"kompare/tools"
@@ -10,8 +11,8 @@ import (
 )
 
 // compare deployments for a namespace
-func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
-	var TheDiff []DiffWithName
+func CompareDeployments(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
+	var TheDiff []DAO.DiffWithName
 	sourceDeployments, err := query.ListDeployments(clientsetToSource, namespaceName)
 	if err != nil {
 		fmt.Printf("Error getting deployments list: %v\n", err)

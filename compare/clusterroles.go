@@ -2,6 +2,7 @@ package compare
 
 import (
 	"fmt"
+	"kompare/DAO"
 	"kompare/cli"
 	"kompare/query"
 	"kompare/tools"
@@ -9,8 +10,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareClusterRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
-	var TheDiff []DiffWithName
+func CompareClusterRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
+	var TheDiff []DAO.DiffWithName
 	sourceClusterRoles, err := query.ListClusterRoles(clientsetToSource)
 	if err != nil {
 		fmt.Printf("Error getting cluster role list: %v\n", err)

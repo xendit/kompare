@@ -2,6 +2,7 @@ package compare
 
 import (
 	"fmt"
+	"kompare/DAO"
 	"kompare/cli"
 	"kompare/query"
 	"kompare/tools"
@@ -10,8 +11,8 @@ import (
 )
 
 // Compare actual namespaces comparison using generic functions from module "compare"
-func CompareNameSpaces(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
-	var TheDiff []DiffWithName
+func CompareNameSpaces(clientsetToSource, clientsetToTarget *kubernetes.Clientset, TheArgs cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
+	var TheDiff []DAO.DiffWithName
 	sourceNameSpacesList, err := query.ListNameSpaces(clientsetToSource)
 	if err != nil {
 		fmt.Printf("Error getting namespace list: %v\n", err)

@@ -1,4 +1,4 @@
-package compare
+package DAO
 
 type DiffWithName struct {
 	Name           string

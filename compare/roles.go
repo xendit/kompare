@@ -2,6 +2,7 @@ package compare
 
 import (
 	"fmt"
+	"kompare/DAO"
 	"kompare/cli"
 	"kompare/query"
 	"kompare/tools"
@@ -9,9 +10,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func CompareRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
+func CompareRoles(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
 
-	var TheDiff []DiffWithName
+	var TheDiff []DAO.DiffWithName
 	sourceRoles, err := query.ListRoles(clientsetToSource, namespaceName)
 	if err != nil {
 		fmt.Printf("Error getting roles list: %v\n", err)

@@ -1,13 +1,13 @@
 package compare
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/go-test/deep"
 
+	"kompare/DAO"
 	"kompare/cli"
 	"kompare/tools"
 
@@ -286,9 +286,9 @@ func getNestedFieldValue(obj reflect.Value, fieldNames []string) (reflect.Value,
 // If the 'Name' fields match, it compares the specified DiffCriteria fields of the objects using the deep.Equal function from the 'github.com/go-test/deep' package.
 // It constructs DiffWithName structs containing the object name, namespace, difference details, and property name for each difference found.
 // The function returns a slice of DiffWithName containing the differences between the source and target interfaces based on the specified criteria.
-func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []string) ([]DiffWithName, error) {
-	var tmpDiff DiffWithName
-	var diffSourceTarget []DiffWithName
+func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []string) ([]DAO.DiffWithName, error) {
+	var tmpDiff DAO.DiffWithName
+	var diffSourceTarget []DAO.DiffWithName
 	// Get type information for source and target
 	_, sourceObject := GetTypeInfo(sourceInterface)
 	_, targetObject := GetTypeInfo(targetInterface)
@@ -345,8 +345,8 @@ func DeepCompare(sourceInterface, targetInterface interface{}, DiffCriteria []st
 // It also performs a deep comparison of resources based on the specified diffCriteria using the DeepCompare function.
 // The function returns a slice of DiffWithName containing the differences between the source and target resources,
 // along with any error encountered during the comparison.
-func ShowResourceComparison(sourceResource, targetResource interface{}, diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
-	var TheDiff []DiffWithName
+func ShowResourceComparison(sourceResource, targetResource interface{}, diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
+	var TheDiff []DAO.DiffWithName
 	lensourceResource := GenericCountListElements(sourceResource)
 	lentargetResource := GenericCountListElements(targetResource)
 	resourceType := tools.ConvertTypeStringToHumanReadable(sourceResource)
@@ -390,7 +390,7 @@ func ShowResourceComparison(sourceResource, targetResource interface{}, diffCrit
 }
 
 // Merge two DiffWithName structs
-func mergeDiffs(diff1, diff2 DiffWithName) DiffWithName {
+func mergeDiffs(diff1, diff2 DAO.DiffWithName) DAO.DiffWithName {
 	mergedDiff := diff1
 
 	// Merge the fields from diff2 into mergedDiff
@@ -410,140 +410,17 @@ func mergeDiffs(diff1, diff2 DiffWithName) DiffWithName {
 	return mergedDiff
 }
 
-// FormatDiffHumanReadable formats differences in a human-readable format.
-// It takes a slice of DiffWithName (differences) containing information about differences between resources.
-// It iterates over each difference and constructs a human-readable format containing details such as resource type, object name, namespace, and specific differences.
-// If a property name, object name, namespace, or differences exist for a particular difference, it includes them in the formatted output.
-// The function returns a string containing the human-readable formatted differences.
-func FormatDiffHumanReadable(differences []DiffWithName) string {
-	var formattedDiff strings.Builder
-	for _, diff := range differences {
-		if len(diff.Diff) != 0 {
-			if diff.PropertyName != "" {
-				formattedDiff.WriteString(fmt.Sprintf("Kubernetes resource definition type: %s\n", diff.PropertyName))
-			}
-			if diff.Name != "" {
-				formattedDiff.WriteString(fmt.Sprintf("Object Name: %s\n", diff.Name))
-			}
-			if diff.Namespace != "" {
-				formattedDiff.WriteString(fmt.Sprintf("Namespace: %s\n", diff.Namespace))
-			}
-			formattedDiff.WriteString("Differences:\n")
-			if len(diff.Diff) > 0 {
-				for _, d := range diff.Diff {
-					key, value, result := startsWithMapPattern(d)
-					if result {
-						x, y, z := ExtractSubstrings(value)
-						leftMultiline := strings.Contains(x, "\n")
-						rightMultiline := strings.Contains(z, "\n")
-						if leftMultiline || rightMultiline {
-							formattedDiff.WriteString(fmt.Sprintf("- %s:\n", key))
-							if isJSONCompatible(x) {
-								prettyX, err := prettifyJSON(x)
-								if err != nil {
-									// Handle error
-									formattedDiff.WriteString(fmt.Sprintf("Error prettifying left side JSON: %v\n", err))
-								} else {
-									formattedDiff.WriteString(fmt.Sprintf("%s\n", prettyX))
-								}
-							} else {
-								formattedDiff.WriteString(fmt.Sprintf("%s:\n", x))
-							}
-							formattedDiff.WriteString(fmt.Sprintf(" %s\n", y))
-							if isJSONCompatible(z) {
-								prettyZ, err := prettifyJSON(z)
-								if err != nil {
-									// Handle error
-									formattedDiff.WriteString(fmt.Sprintf("Error prettifying right side JSON: %v\n", err))
-								} else {
-									formattedDiff.WriteString(fmt.Sprintf("%s\n", prettyZ))
-								}
-							} else {
-								formattedDiff.WriteString(fmt.Sprintf("%s:\n", z))
-							}
-						} else {
-							formattedDiff.WriteString(fmt.Sprintf("- %s: %s %s %s\n", key, x, y, z))
-						}
-					} else {
-						formattedDiff.WriteString(fmt.Sprintf("- %v\n", d))
-					}
-				}
-				formattedDiff.WriteString("\n")
-			}
-		}
-	}
-	return formattedDiff.String()
-}
-
-func isJSONCompatible(jsonStr string) bool {
-	var data interface{}
-	err := json.Unmarshal([]byte(jsonStr), &data)
-	return err == nil
-}
-
-func prettifyJSON(jsonStr string) (string, error) {
-	var data interface{}
-	err := json.Unmarshal([]byte(jsonStr), &data)
-	if err != nil {
-		return "", err
-	}
-
-	prettyJSON, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return "", err
-	}
-
-	return string(prettyJSON), nil
-}
-
-func startsWithMapPattern(input string) (string, string, bool) {
-	// Define the prefix pattern
-	prefix := "map["
-
-	// Check if the input string starts with the prefix
-	if strings.HasPrefix(input, prefix) {
-		// Find the index of the closing bracket "]"
-		closingBracketIndex := strings.Index(input, "]")
-
-		// Check if the closing bracket is followed by a colon ":"
-		if closingBracketIndex != -1 && closingBracketIndex < len(input)-1 && input[closingBracketIndex+1] == ':' {
-			// Extract the substring between the brackets and after the colon
-			key := input[len(prefix):closingBracketIndex]
-			value := input[closingBracketIndex+2:] // Skipping the ":"
-			return key, value, true
-		}
-	}
-
-	return "", "", false
-}
-
-func ExtractSubstrings(value string) (string, string, string) {
-	parts := strings.Split(value, "!= ")
-
-	if len(parts) < 2 {
-		return "", "", ""
-	}
-
-	leftSide := parts[0]
-	rightSide := parts[1]
-
-	// Split operatorAndRightSide to get the operator and right side
-	leftSide = strings.TrimSpace(leftSide)
-	rightSide = strings.TrimSpace(rightSide)
-	return leftSide, "!=", rightSide
-}
-
 // CompareVerboseVSNonVerbose compares two sets of namespaces from different clusters based on specified criteria.
 // It takes sourceNameSpacesList and targetNameSpacesList as input interfaces representing lists of namespaces from different clusters,
 // diffCriteria as a slice of strings representing comparison criteria, and boolverboseDiffs as a pointer to a boolean indicating whether to display verbose differences.
 // If args is the aguments passed like for instance VerboseDiffs for the level of verbosity desired.
 // The function returns a slice of DiffWithName containing the differences between the source and target namespaces,
 // along with any error encountered during the comparison.
-func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList interface{}, diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
+func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList interface{}, diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
 	if args.VerboseDiffs != 0 {
 		if args.VerboseDiffs > 1 {
 			TheDiff, err := ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria, args)
-			fmt.Println(FormatDiffHumanReadable(TheDiff))
+			fmt.Println(tools.FormatDiffHumanReadable(TheDiff))
 			return TheDiff, err
 		} else if args.VerboseDiffs == 1 {
 			return ShowResourceComparison(sourceNameSpacesList, targetNameSpacesList, diffCriteria, args)
@@ -564,8 +441,8 @@ func CompareVerboseVSNonVerbose(sourceNameSpacesList, targetNameSpacesList inter
 // It then performs a comparison between the resources from both clusters using the CompareVerboseVSNonVerbose function.
 // The function returns a slice of DiffWithName containing the differences between the source and target resources,
 // along with any error encountered during the comparison.
-func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, resourceGetter func(*kubernetes.Clientset, string) (interface{}, error), diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DiffWithName, error) {
-	var TheDiff []DiffWithName
+func GenericCompareResources(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, resourceGetter func(*kubernetes.Clientset, string) (interface{}, error), diffCriteria []string, args cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
+	var TheDiff []DAO.DiffWithName
 
 	sourceResources, err := resourceGetter(clientsetToSource, namespaceName)
 	if err != nil {

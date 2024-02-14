@@ -33,6 +33,14 @@ func ListNameSpaces(clientset *kubernetes.Clientset) (*Corev1.NamespaceList, err
 	return nsList, nil
 }
 
+func GetNamespace(clientset *kubernetes.Clientset, name string) (*Corev1.Namespace, error) {
+	ns, err := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return ns, nil
+}
+
 // ListK8sDeployments retrieves a list of Kubernetes deployments in the specified namespace.
 // Parameters:
 // - clientset: The Kubernetes clientset used to make the API call.

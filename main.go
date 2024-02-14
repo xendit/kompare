@@ -13,7 +13,6 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -28,8 +27,8 @@ func main() {
 	// Connect to source cluster
 	clientsetToSource, err := connect.ConnectToSource(args.SourceClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		fmt.Printf("Error connecting to source cluster: %v\n", err)
-		return
+		err = fmt.Errorf("Error connecting to source cluster: %v\n", err)
+		panic(err)
 	}
 
 	// Connect to target cluster
@@ -46,19 +45,27 @@ func main() {
 	switch namespaceArgType {
 	case "specific":
 		fmt.Println("Using", args.NamespaceName, "namespace")
-		sourceNameSpace = &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: args.NamespaceName}}
+		sourceNameSpace, err = query.GetNamespace(clientsetToSource, args.NamespaceName)
+		if err != nil {
+			err = fmt.Errorf("Error listing namespaces: %v\n", err)
+			panic(err)
+		}
 		sourceNameSpacesList = &v1.NamespaceList{Items: []v1.Namespace{*sourceNameSpace}}
 	case "wildcard":
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
+		if err != nil {
+			err = fmt.Errorf("Error listing namespaces: %v\n", err)
+			panic(err)
+		}
 		sourceNameSpacesList = filterNamespaces(sourceNameSpacesList, args.NamespaceName)
 	case "empty":
 		iterateGoglabObjects(clientsetToSource, clientsetToTarget, args)
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
+		if err != nil {
+			err = fmt.Errorf("Error listing namespaces: %v\n", err)
+			panic(err)
+		}
 		sourceNameSpace = nil
-	}
-	if err != nil {
-		err = fmt.Errorf("Error listing namespaces: %v\n", err)
-		panic(err)
 	}
 
 	// Iterate over namespaces

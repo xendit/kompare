@@ -1,19 +1,60 @@
 package mock
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
+
+	Corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func StartMockCluster() (string, *http.ServeMux) {
 	mux := http.NewServeMux()
+	// Handle the /api/v1/namespaces endpoint
 	mux.HandleFunc("/api/v1/namespaces", func(w http.ResponseWriter, r *http.Request) {
-		// Return a sample namespace list or an empty list if needed
-		w.Header().Set("Content-Type", "application/json") // Set content type to JSON
+		// Define a sample list of namespaces
+		namespaces := []Corev1.Namespace{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "namespace1",
+				},
+			},
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "namespace2",
+				},
+			},
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "namespace3",
+				},
+			},
+		}
+
+		// Create a NamespaceList response structure
+		namespaceList := struct {
+			Kind  string             `json:"kind"`
+			Items []Corev1.Namespace `json:"items"`
+		}{
+			Kind:  "NamespaceList",
+			Items: namespaces,
+		}
+		// Convert the response structure to JSON
+		responseJSON, err := json.Marshal(namespaceList)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error marshalling JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"kind":"NamespaceList","items":[]}`))
+
+		// Write the JSON response to the client
+		w.Write(responseJSON)
 	})
 
 	// Handle customresourcedefinitions endpoint

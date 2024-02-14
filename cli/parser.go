@@ -154,7 +154,7 @@ func ValidateKubernetesObjects(objects []string) ([]string, []string) {
 		"deployment":         {"deployment", "deployments", "deploy"},
 		"ingress":            {"ingress", "ing"},
 		"service":            {"service", "svc", "services"},
-		"sa":                 {"sa", "serviceaccount", "serviceaccounts"},
+		"serviceaccount":     {"sa", "serviceaccount", "serviceaccounts"},
 		"configmap":          {"configmap", "configmaps", "cm"},
 		"secret":             {"secret", "secrets"},
 		"namespace":          {"namespace", "ns", "namespaces"},

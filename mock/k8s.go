@@ -16,6 +16,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	RbacV1 "k8s.io/api/rbac/v1"
+	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -33,9 +34,9 @@ func StartMockCluster() (string, *mux.Router, error) {
 	r.HandleFunc("/api/v1/namespaces", NamespacesHandler).Methods("GET")
 	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/roles", GetRoles).Methods("GET")
 	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings", GetRoleBindings).Methods("GET")
-	r.HandleFunc("/apis/apiextensions.k8s.io/v1/customresourcedefinitions", CustomResourceDefinitionsHandler).Methods("GET")
-	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/clusterroles", ClusterRolesHandler).Methods("GET")
-	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/clusterrolebindings", ClusterRoleBindingsHandler).Methods("GET")
+	r.HandleFunc("/apis/apiextensions.k8s.io/v1/customresourcedefinitions", GetCustomResourceDefinitions).Methods("GET")
+	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/clusterroles", GetClusterRoles).Methods("GET")
+	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/clusterrolebindings", GetClusterRoleBindings).Methods("GET")
 
 	// Create a HTTP server instance
 	server := &http.Server{
@@ -111,30 +112,6 @@ func NamespacesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// CustomResourceDefinitionsHandler handles requests to /apis/apiextensions.k8s.io/v1/customresourcedefinitions
-func CustomResourceDefinitionsHandler(w http.ResponseWriter, r *http.Request) {
-	// Return a sample CRD list or an empty list if needed
-	w.Header().Set("Content-Type", "application/json") // Set content type to JSON
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"kind":"CustomResourceDefinitionList","items":[]}`))
-}
-
-// ClusterRolesHandler handles requests to /apis/rbac.authorization.k8s.io/v1/clusterroles
-func ClusterRolesHandler(w http.ResponseWriter, r *http.Request) {
-	// Return a sample ClusterRole list or an empty list if needed
-	w.Header().Set("Content-Type", "application/json") // Set content type to JSON
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"kind":"ClusterRoleList","items":[]}`))
-}
-
-// ClusterRoleBindingsHandler handles requests to /apis/rbac.authorization.k8s.io/v1/clusterrolebindings
-func ClusterRoleBindingsHandler(w http.ResponseWriter, r *http.Request) {
-	// Return a sample ClusterRoleBinding list or an empty list if needed
-	w.Header().Set("Content-Type", "application/json") // Set content type to JSON
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"kind":"ClusterRoleBindingList","items":[]}`))
-}
-
 func GetDeployments(w http.ResponseWriter, r *http.Request) {
 	// Create an empty DeploymentList object
 	deployments := &appsv1.DeploymentList{
@@ -154,7 +131,11 @@ func GetDeployments(w http.ResponseWriter, r *http.Request) {
 	// Set the response headers and write the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 func GetIngresses(w http.ResponseWriter, r *http.Request) {
 	// Create an empty IngressList object
@@ -175,7 +156,11 @@ func GetIngresses(w http.ResponseWriter, r *http.Request) {
 	// Set the response headers and write the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // Sample handler for Secrets
@@ -199,7 +184,11 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // Sample handler for ConfigMaps
@@ -223,7 +212,11 @@ func GetConfigMaps(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // Sample handler for Services
@@ -247,7 +240,11 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetRoles handles HTTP requests to retrieve Role resources.
@@ -274,7 +271,11 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 	// Set the response headers and write the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetRoleBindings handles HTTP requests to retrieve RoleBinding resources.
@@ -299,7 +300,11 @@ func GetRoleBindings(w http.ResponseWriter, r *http.Request) {
 	// Set the response headers and write the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetHPAs handles HTTP requests to retrieve HorizontalPodAutoscaler resources.
@@ -324,7 +329,11 @@ func GetHPAs(w http.ResponseWriter, r *http.Request) {
 	// Set the response headers and write the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetCronJobs handles HTTP requests to retrieve CronJob resources.
@@ -348,7 +357,104 @@ func GetCronJobs(w http.ResponseWriter, r *http.Request) {
 	// Set the response headers and write the JSON response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+// CustomResourceDefinitionsHandler handles HTTP requests to retrieve Custom Resource Definitions (CRDs).
+func GetCustomResourceDefinitions(w http.ResponseWriter, r *http.Request) {
+	// Sample response for the CRDList
+	crdList := &apiextensionv1.CustomResourceDefinitionList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "CustomResourceDefinitionList",
+			APIVersion: "apiextensions.k8s.io/v1",
+		},
+		Items: []apiextensionv1.CustomResourceDefinition{}, // Placeholder for CRD items
+	}
+
+	// Convert the CRDList object to JSON
+	jsonResponse, err := json.Marshal(crdList)
+	if err != nil {
+		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the response headers and write the JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetClusterRoles handles HTTP requests to retrieve ClusterRoles.
+func GetClusterRoles(w http.ResponseWriter, r *http.Request) {
+	// Sample response for the ClusterRoleList
+	clusterRoles := &RbacV1.ClusterRoleList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleList",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		Items: []RbacV1.ClusterRole{
+			{
+				// Add details for each ClusterRole as needed
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "ClusterRole",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				// Add metadata, rules, etc.
+			},
+		},
+	}
+
+	// Convert the ClusterRoleList object to JSON
+	jsonResponse, err := json.Marshal(clusterRoles)
+	if err != nil {
+		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the response headers and write the JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetClusterRoleBindings handles HTTP requests to retrieve ClusterRoleBinding resources.
+func GetClusterRoleBindings(w http.ResponseWriter, r *http.Request) {
+	// Sample response for the ClusterRoleBindingList
+	clusterRoleBindings := &RbacV1.ClusterRoleBindingList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBindingList",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		Items: []RbacV1.ClusterRoleBinding{}, // Placeholder for ClusterRoleBinding items
+	}
+
+	// Convert the ClusterRoleBindingList object to JSON
+	jsonResponse, err := json.Marshal(clusterRoleBindings)
+	if err != nil {
+		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the response headers and write the JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
 
 func SetupTestEnvironment() (string, string, *os.File) {

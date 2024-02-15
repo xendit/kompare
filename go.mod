@@ -5,7 +5,7 @@ go 1.21.6
 require (
 	github.com/akamensky/argparse v1.4.0
 	github.com/go-test/deep v1.1.0
-	github.com/golang/mock v1.6.0
+	github.com/gorilla/mux v1.8.1
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/text v0.14.0
 	k8s.io/api v0.29.1

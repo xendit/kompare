@@ -85,14 +85,6 @@ var typeAssertions = map[string]TypeAssertionFunc{
 	},
 }
 
-func assertType(typeName string, obj interface{}) (bool, interface{}) {
-	if assertionFunc, ok := typeAssertions[typeName]; ok {
-		return assertionFunc(obj)
-	} else {
-		return false, nil
-	}
-}
-
 func GetTypeInfo(obj interface{}) (string, interface{}) {
 	typeName := "unknown"
 	var objValue interface{}
@@ -209,7 +201,7 @@ func CompareByName(firstInterface, secondInterface interface{}, message_heading 
 
 			// Check if the item is not present in the second interface
 			if !containsItem(item, secondItems) {
-				fmt.Printf(generateMessage(message_heading, tools.ConvertTypeStringToHumanReadable(item), getName(item)))
+				fmt.Println(generateMessage(message_heading, tools.ConvertTypeStringToHumanReadable(item), getName(item)))
 				diffNameList = append(diffNameList, getName(item))
 			}
 		}
@@ -387,27 +379,6 @@ func ShowResourceComparison(sourceResource, targetResource interface{}, diffCrit
 	}
 	TheDiff, _ = DeepCompare(targetResource, sourceResource, diffCriteria)
 	return TheDiff, nil
-}
-
-// Merge two DiffWithName structs
-func mergeDiffs(diff1, diff2 DAO.DiffWithName) DAO.DiffWithName {
-	mergedDiff := diff1
-
-	// Merge the fields from diff2 into mergedDiff
-	if diff2.MessageHeading != "" {
-		mergedDiff.MessageHeading = diff2.MessageHeading
-	}
-	if diff2.SourceMessage != "" {
-		mergedDiff.SourceMessage = diff2.SourceMessage
-	}
-	if diff2.TargetMessage != "" {
-		mergedDiff.TargetMessage = diff2.TargetMessage
-	}
-	if len(diff2.Diff) > 0 {
-		mergedDiff.Diff = append(mergedDiff.Diff, diff2.Diff...)
-	}
-
-	return mergedDiff
 }
 
 // CompareVerboseVSNonVerbose compares two sets of namespaces from different clusters based on specified criteria.

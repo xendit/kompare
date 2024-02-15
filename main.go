@@ -65,7 +65,6 @@ func main() {
 			err = fmt.Errorf("Error listing namespaces: %v\n", err)
 			panic(err)
 		}
-		sourceNameSpace = nil
 	}
 
 	// Iterate over namespaces
@@ -85,13 +84,29 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 			if tools.IsInList(objectType, args.Include) {
 				switch objectType {
 				case "namespace":
-					compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+					_, err := compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing Namespaces: %v", err)
+						panic(err)
+					}
 				case "crd":
-					compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+					_, err := compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing CRDs: %v", err)
+						panic(err)
+					}
 				case "clusterrole":
-					compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+					_, err := compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing Cluster Role: %v", err)
+						panic(err)
+					}
 				case "clusterrolebinding":
-					compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+					_, err := compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing Cluster Role: %v", err)
+						panic(err)
+					}
 				}
 				comparisonPerformed = true
 			}
@@ -105,13 +120,29 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 			if !tools.IsInList(objectType, args.Exclude) {
 				switch objectType {
 				case "namespace":
-					compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+					_, err := compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing Namspace: %v", err)
+						panic(err)
+					}
 				case "crd":
-					compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+					_, err := compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing CRDs: %v", err)
+						panic(err)
+					}
 				case "clusterrole":
-					compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+					_, err := compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing Cluster Role: %v", err)
+						panic(err)
+					}
 				case "clusterrolebinding":
-					compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+					_, err := compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+					if err != nil {
+						err = fmt.Errorf("Error comparing Cluster Role Binding: %v", err)
+						panic(err)
+					}
 				}
 				comparisonPerformed = true
 			}
@@ -120,10 +151,26 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 
 	// If no include or exclude lists are provided, perform default comparisons
 	if args.Include == nil && args.Exclude == nil {
-		compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
-		compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
-		compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
-		compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+		_, err := compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Namespaces: %v", err)
+			panic(err)
+		}
+		_, err = compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
+		if err != nil {
+			err = fmt.Errorf("Error comparing CRDs: %v", err)
+			panic(err)
+		}
+		_, err = compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Cluster Roles: %v", err)
+			panic(err)
+		}
+		_, err = compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Cluster Role Bindings: %v", err)
+			panic(err)
+		}
 		comparisonPerformed = true
 	}
 
@@ -137,7 +184,7 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
 	fmt.Printf("Looping on Namespace: %s\n", namespace)
 	// Compare all resources for the namespace
-	resources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+	resources := []string{"deployment", "ingress", "service", "serviceaccount", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
 
 	// Create a title case converter for English
 	titleCase := cases.Title(language.English)
@@ -165,14 +212,12 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 	allResources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}
 
 	// Compare resources based on include list
-	if includeResources != nil {
-		for _, resource := range includeResources {
-			titleResource := titleCase.String(resource)
-			fmt.Printf("%s\n", titleResource)
-			compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
-			fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
+	for _, resource := range includeResources {
+		titleResource := titleCase.String(resource)
+		fmt.Printf("%s\n", titleResource)
+		compareResource(clientsetToSource, clientsetToTarget, namespace, resource, TheArgs)
+		fmt.Printf("Finished %s for namespace: %s\n", titleResource, namespace)
 
-		}
 	}
 
 	// Compare resources based on exclude list
@@ -192,25 +237,65 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace, resource string, TheArgs cli.ArgumentsReceivedValidated) {
 	switch resource {
 	case "deployment":
-		compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Deployments: %v", err)
+			panic(err)
+		}
 	case "ingress":
-		compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Ingresses: %v", err)
+			panic(err)
+		}
 	case "service":
-		compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Services: %v", err)
+			panic(err)
+		}
 	case "sa":
-		compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Service Accounts: %v", err)
+			panic(err)
+		}
 	case "configmap":
-		compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Config Maps: %v", err)
+			panic(err)
+		}
 	case "secret":
-		compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Secrets: %v", err)
+			panic(err)
+		}
 	case "role":
-		compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Roles: %v", err)
+			panic(err)
+		}
 	case "rolebinding":
-		compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Role Bindings: %v", err)
+			panic(err)
+		}
 	case "hpa":
-		compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Horizontal Pod Autoscalers: %v", err)
+			panic(err)
+		}
 	case "cronjob":
-		compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		_, err := compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("Error comparing Cron Jobs: %v", err)
+			panic(err)
+		}
 	}
 }
 

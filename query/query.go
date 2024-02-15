@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"fmt"
 	"kompare/connect"
 
 	v1 "k8s.io/api/apps/v1"
@@ -28,7 +29,7 @@ import (
 func ListNameSpaces(clientset *kubernetes.Clientset) (*Corev1.NamespaceList, error) {
 	nsList, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the NameSpace List: %w", err)
 	}
 	return nsList, nil
 }
@@ -36,7 +37,7 @@ func ListNameSpaces(clientset *kubernetes.Clientset) (*Corev1.NamespaceList, err
 func GetNamespace(clientset *kubernetes.Clientset, name string) (*Corev1.Namespace, error) {
 	ns, err := clientset.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the NameSpace Get: %w", err)
 	}
 	return ns, nil
 }
@@ -54,7 +55,7 @@ func ListDeployments(clientset *kubernetes.Clientset, nameSpace string) (*v1.Dep
 	}
 	deployments_list, err := clientset.AppsV1().Deployments(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Deployment List: %w", err)
 	}
 	return deployments_list, nil
 }
@@ -71,7 +72,7 @@ func ListHPAs(clientset *kubernetes.Clientset, nameSpace string) (*autoscalingv1
 	}
 	listHPA, err := clientset.AutoscalingV1().HorizontalPodAutoscalers(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the HPA List: %w", err)
 	}
 	return listHPA, nil
 }
@@ -86,7 +87,7 @@ func ListHPAs(clientset *kubernetes.Clientset, nameSpace string) (*autoscalingv1
 func ListCronJobs(clientset *kubernetes.Clientset, nameSpace string) (*batchv1.CronJobList, error) {
 	listCronJobs, err := clientset.BatchV1().CronJobs(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Cron Job List: %w", err)
 	}
 	return listCronJobs, nil
 }
@@ -101,16 +102,16 @@ func ListCronJobs(clientset *kubernetes.Clientset, nameSpace string) (*batchv1.C
 func ListCRDs(ctx, kubeconfig string) (*apiextensionv1.CustomResourceDefinitionList, error) {
 	config, err := connect.BuildConfigWithContextFromFlags(ctx, kubeconfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to create config for quering CRDs: %w", err)
 	}
 	kubeClient, err := apiextension.NewForConfig(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to get clientset for quering CRDs: %w", err)
 	}
 
 	listCRDs, err := kubeClient.ApiextensionsV1().CustomResourceDefinitions().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the CRD List: %w", err)
 	}
 	return listCRDs, nil
 }
@@ -125,7 +126,7 @@ func ListCRDs(ctx, kubeconfig string) (*apiextensionv1.CustomResourceDefinitionL
 func ListIngresses(clientset *kubernetes.Clientset, nameSpace string) (*networkingv1.IngressList, error) {
 	listIngress, err := clientset.NetworkingV1().Ingresses(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Ingress List: %w", err)
 	}
 	return listIngress, nil
 }
@@ -140,7 +141,7 @@ func ListIngresses(clientset *kubernetes.Clientset, nameSpace string) (*networki
 func ListServices(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ServiceList, error) {
 	listServices, err := clientset.CoreV1().Services(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Kubernetes Services List: %w", err)
 	}
 	return listServices, nil
 }
@@ -149,14 +150,14 @@ func ListServices(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.Se
 func ListConfigMaps(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ConfigMapList, error) {
 	ListConfigMaps, err := clientset.CoreV1().ConfigMaps(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Config Map List: %w", err)
 	}
 	return ListConfigMaps, nil
 }
 func ListConfigMapsGeneric(clientset *kubernetes.Clientset, nameSpace string) (interface{}, error) {
 	ListConfigMaps, err := clientset.CoreV1().ConfigMaps(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Config Maps List: %w", err)
 	}
 	return ListConfigMaps, nil
 }
@@ -165,7 +166,7 @@ func ListConfigMapsGeneric(clientset *kubernetes.Clientset, nameSpace string) (i
 func ListSecrets(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.SecretList, error) {
 	ListSercrets, err := clientset.CoreV1().Secrets(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Secrets List: %w", err)
 	}
 	return ListSercrets, nil
 }
@@ -174,7 +175,7 @@ func ListSecrets(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.Sec
 func ListServiceAccounts(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.ServiceAccountList, error) {
 	ListServiceAccounts, err := clientset.CoreV1().ServiceAccounts(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Service Accounts List: %w", err)
 	}
 	return ListServiceAccounts, nil
 }
@@ -184,7 +185,7 @@ func ListServiceAccounts(clientset *kubernetes.Clientset, nameSpace string) (*Co
 func ListRoles(clientset *kubernetes.Clientset, nameSpace string) (*RbacV1.RoleList, error) {
 	Listroles, err := clientset.RbacV1().Roles(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Roles List: %w", err)
 	}
 	return Listroles, nil
 }
@@ -193,7 +194,7 @@ func ListRoles(clientset *kubernetes.Clientset, nameSpace string) (*RbacV1.RoleL
 func ListRoleBindings(clientset *kubernetes.Clientset, nameSpace string) (*RbacV1.RoleBindingList, error) {
 	ListRoleBindings, err := clientset.RbacV1().RoleBindings(nameSpace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Role bindings List: %w", err)
 	}
 	return ListRoleBindings, nil
 }
@@ -202,7 +203,7 @@ func ListRoleBindings(clientset *kubernetes.Clientset, nameSpace string) (*RbacV
 func ListClusterRoles(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleList, error) {
 	ListClusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Cluster Roles List: %w", err)
 	}
 	return ListClusterRoles, nil
 }
@@ -212,7 +213,7 @@ func ListClusterRoles(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleList,
 func ListClusterRoleBindings(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleBindingList, error) {
 	ListClusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to query the Cluster Role Bindings List: %w", err)
 	}
 	return ListClusterRoleBindings, nil
 }

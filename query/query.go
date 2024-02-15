@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"fmt"
 	"kompare/connect"
 
 	v1 "k8s.io/api/apps/v1"
@@ -53,6 +54,7 @@ func ListDeployments(clientset *kubernetes.Clientset, nameSpace string) (*v1.Dep
 		nameSpace = "default"
 	}
 	deployments_list, err := clientset.AppsV1().Deployments(nameSpace).List(context.TODO(), metav1.ListOptions{})
+	fmt.Println(deployments_list)
 	if err != nil {
 		return nil, err
 	}

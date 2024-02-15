@@ -9,7 +9,7 @@ import (
 )
 
 func TestStartMockCluster(t *testing.T) {
-	clusterURL, mux := StartMockCluster()
+	clusterURL, mux, _ := StartMockCluster()
 
 	// No need to defer a Close call for http.ServeMux
 
@@ -30,6 +30,19 @@ func TestStartMockCluster(t *testing.T) {
 
 	expectedContentType := "application/json"
 	if contentType := resp.Header.Get("Content-Type"); contentType != expectedContentType {
+		t.Errorf("Expected content type %s, got %s", expectedContentType, contentType)
+	}
+	// Test the /apis/apps/v1/namespaces/{namespace}/deployments endpoint
+	deploymentsReq := httptest.NewRequest("GET", "/apis/apps/v1/namespaces/{namespace}/deployments", nil)
+	deploymentsW := httptest.NewRecorder()
+	mux.ServeHTTP(deploymentsW, deploymentsReq)
+	deploymentsResp := deploymentsW.Result()
+
+	if deploymentsResp.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, deploymentsResp.StatusCode)
+	}
+
+	if contentType := deploymentsResp.Header.Get("Content-Type"); contentType != expectedContentType {
 		t.Errorf("Expected content type %s, got %s", expectedContentType, contentType)
 	}
 }

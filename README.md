@@ -1,18 +1,22 @@
 # Kompare
 
-Kompare is a Go CLI runner to compare two clusters. This software compares two kubernetes cluster using kubeconfig to connect to them and compare existing objects in the two clusters based on flexible criteria passed via command line.
+Kompare is a Go CLI runner for comparing two clusters. This software compares two Kubernetes clusters using kubeconfig to connect to them and compare existing objects in the two clusters based on flexible criteria passed via the command line.
 
-So you need to compare two kubernetes clusters. They are supposed to be completely or partially equal or equivalent. You can find tools that actually do some comparison, but we could not find one that we could give it comparison criteria for all the kubernetes objects we needed to compare. Criteria like ignore Kuberentes resource definition subtypes that are always different like UID, Dates, and other objects content that will never match even when they are the same. To give other examples Filter and compare ONLY namespaces whose name ends with '*-pci' or cimpare only the deployments and config maps and secrets. This is just some of the issues you might face while comparing two kubernetes lcusters. That is the reason why we decided to create this tool. 
+When comparing two Kubernetes clusters, you may encounter challenges such as ignoring Kubernetes resource definition subtypes like UID and dates, or filtering and comparing only specific types of objects. Existing tools may not offer the flexibility to define such criteria, which led us to create Kompare.
 
-## Why do we need Kompare
-This CLI tool has been created in the context of having to compare two clusters to determine if they are different so they can be interchangeable or replace each other. Enterprices often prefer to keep a few k8s clusters for the same job or run upgrade this way. The practical/real work we use the tool for is to compare a source cluster that is currently in production with a new cluster that we intend to put in prod to replace it to to work side by side. 
-**Notice:** Therefore the source cluster "tends" to be considered the source of truth for the comparison.
+## Why Do We Need Kompare
 
-## Key terms & help to use the tool.
-1. Source cluster refers to the origin cluster. If this was a number comparison then the source cluster would be the "left-hand side" (LHS) or "antecedent".
-2. Target cluster refers to the destination cluster. If this was a number comparison then the source cluster would be the "right-hand side" (RHS) or the "second number" or  "consequent".
-3. The too has a help that should be self explanatory. you can get to this help by executing the tool with the -h flag.
-```
+This CLI tool is designed to compare two clusters to determine if they are different or if they can be interchangeable. Enterprises often maintain multiple Kubernetes clusters for redundancy or to facilitate upgrades. We primarily use this tool to compare a production cluster (source cluster) with a new cluster intended for production use or to run side by side.
+
+**Notice:** The source cluster is typically considered the source of truth for the comparison.
+
+## Key Terms & Usage
+
+1. **Source cluster:** The original cluster, analogous to the "left-hand side" (LHS) in a number comparison.
+2. **Target cluster:** The destination cluster, analogous to the "right-hand side" (RHS) or the "second number" in a number comparison.
+3. The tool includes a help option that can be accessed using the `-h` flag.
+
+```sh
 go run main.go -h
 usage: print [-h|--help] [-c|--conf "<value>"] [-s|--src "<value>"] -t|--target
              "<value>" [-v|--verbose] [-i|--include "<value>"] [-e|--exclude
@@ -48,12 +52,16 @@ So far only the -t option is required.
 
 ## Getting Started
 
-This is a project currently in dev, the best way to use it it to do a go build or to just run it in the console with something like:
+This project is currently in development. To use it, either build it with Go or run it directly from the console:
+
 ```
 go run main.go -t some-target-context.
 ```
-### example command:
-Compare current contect to "MySecondContext-Cluster" use the -v or verbose option, to see the actual diffs. Then -e option is to exclude in this case services ,roles & role bindings for the namespace called velero.
+see [this introductory post](https://medium/post/once/public) for mode details. 
+### Example Command
+
+To compare the current context with "MySecondContext-Cluster" and view the differences using the `-v` (verbose) option:
+
 ```
 go run main.go -t MySecondContext-Cluster -v -n velero -e svc,role,rolebinding
 We will use current kubeconfig context as 'source cluster'.
@@ -92,17 +100,20 @@ Finished Config Maps (CM) for namespace:  velero
 ... Done with all resources in ns: velero.
 Finished!
 ```
-**Notice:** The software will assume you want to use your current context as source cluster to compare from (-s or --source to set a different source context). Then the -t option is required and its the destination cluster. 
+**Notice:** The software assumes the current context as the source cluster by default (use `-s` or `--source` to set a different source context). The `-t` option specifies the destination cluster.
+
+**Notice:** Therefore, the source cluster is typically considered the source of truth for the comparison.
 
 ### Prerequisites
 
-It's a golang program and has been tested on Mac Silicon Procesors, but should work on other architectures and Operating systems as well. If you need to compile install golang preferably `go 1.21.6` version or higher.
+Kompare is written in Go and has been tested on Mac Silicon Processors. It should work on other architectures and operating systems as well. Ensure you have Go 1.21.6 or higher installed.
 
 ## Contributing
 
-PRs, testing and opening issues are all welcome! We are currently busy with the following:
-1. Add more & better test cases.
-2. Improve visualization, the sumary view should be better.
-3. Improve the visualizations for the diffs in the -vv mode.
-4. Issues and bug fixes.
+Contributions such as pull requests, testing, and issue reporting are welcome. Current focus areas include:
+
+1. Adding more and better test cases.
+2. Improving visualization, particularly the summary view.
+3. Enhancing visualizations for differences in verbose mode.
+4. Addressing issues and bugs.
 

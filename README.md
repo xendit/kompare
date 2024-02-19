@@ -57,7 +57,7 @@ This project is currently in development. To use it, either build it with Go or 
 ```
 go run main.go -t some-target-context.
 ```
-see [this introductory post](https://medium/post/once/public) for mode details. 
+see [this introductory post](https://blog.xendit.engineer/kompare-simplifying-kubernetes-cluster-comparison-ced2792716d9) for mode details. 
 ### Example Command
 
 To compare the current context with "MySecondContext-Cluster" and view the differences using the `-v` (verbose) option:

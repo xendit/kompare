@@ -68,8 +68,11 @@ func FormatDiffHumanReadable(differences []DAO.DiffWithName) string {
 				}
 				formattedDiff.WriteString("\n")
 			}
+		} else {
+			fmt.Println("No differences found.")
 		}
 	}
+
 	return formattedDiff.String()
 }
 

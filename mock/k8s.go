@@ -25,13 +25,14 @@ func StartMockCluster() (string, *mux.Router, error) {
 
 	// Routes for different Kubernetes resources
 	r.HandleFunc("/apis/apps/v1/namespaces/{namespace}/deployments", GetDeployments).Methods("GET")
-	r.HandleFunc("/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses", GetDeployments).Methods("GET")
+	r.HandleFunc("/apis/networking.k8s.io/v1/namespaces/{namespace}/ingresses", GetIngresses).Methods("GET")
 	r.HandleFunc("/apis/apps/v1/namespaces/{namespace}/secrets", GetSecrets).Methods("GET")
 	r.HandleFunc("/api/v1/namespaces/{namespace}/configmaps", GetConfigMaps).Methods("GET")
 	r.HandleFunc("/api/v1/namespaces/{namespace}/services", GetServices).Methods("GET")
 	r.HandleFunc("/apis/autoscaling/v1/namespaces/{namespace}/horizontalpodautoscalers", GetHPAs).Methods("GET")
 	r.HandleFunc("/apis/batch/v1/namespaces/{namespace}/cronjobs", GetCronJobs).Methods("GET")
-	r.HandleFunc("/api/v1/namespaces", NamespacesHandler).Methods("GET")
+	r.HandleFunc("/api/v1/namespaces", GetNamespaces).Methods("GET")
+	r.HandleFunc("/api/v1/namespaces/namespace2", GetNamespace).Methods("GET")
 	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/roles", GetRoles).Methods("GET")
 	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/namespaces/{namespace}/rolebindings", GetRoleBindings).Methods("GET")
 	r.HandleFunc("/apis/apiextensions.k8s.io/v1/customresourcedefinitions", GetCustomResourceDefinitions).Methods("GET")
@@ -70,8 +71,35 @@ func StartMockCluster() (string, *mux.Router, error) {
 	return clusterURL, r, nil
 }
 
+// GetNamespace handles requests to /api/v1/namespaces/{name}
+func GetNamespace(w http.ResponseWriter, r *http.Request) {
+	// Define the namespace
+	namespace := v1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "namespace2",
+		},
+	}
+
+	// Marshal namespace to JSON
+	namespaceJSON, err := json.Marshal(namespace)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error marshaling namespace to JSON: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Set Content-Type header
+	w.Header().Set("Content-Type", "application/json")
+
+	// Write JSON response
+	_, err = w.Write(namespaceJSON)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
 // NamespacesHandler handles requests to /api/v1/namespaces
-func NamespacesHandler(w http.ResponseWriter, r *http.Request) {
+func GetNamespaces(w http.ResponseWriter, r *http.Request) {
 	// Define a sample list of namespaces
 	namespaces := &v1.NamespaceList{
 		Items: []v1.Namespace{
@@ -113,16 +141,94 @@ func NamespacesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetDeployments(w http.ResponseWriter, r *http.Request) {
-	// Create an empty DeploymentList object
-	deployments := &appsv1.DeploymentList{
-		ListMeta: metav1.ListMeta{
-			ResourceVersion: "320850103", // Set a sample resource version
+	vars := mux.Vars(r)
+	namespace := vars["namespace"]
+
+	// Check if the namespace is "namespace2"
+	if namespace == "namespace2" {
+		// Create three sample deployments for namespace2
+		deployments := &appsv1.DeploymentList{
+			ListMeta: metav1.ListMeta{
+				ResourceVersion: "320850103", // Set a sample resource version
+			},
+			Items: []appsv1.Deployment{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "deployment1",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "deployment2",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "deployment3",
+						Namespace: "namespace2",
+					},
+				},
+			},
+		}
+
+		// Convert the DeploymentList object to JSON
+		jsonResponse, err := json.Marshal(deployments)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// If the namespace is not "namespace2", return an empty list of deployments
+		deployments := &appsv1.DeploymentList{
+			ListMeta: metav1.ListMeta{
+				ResourceVersion: "0",
+			},
+			Items: []appsv1.Deployment{},
+		}
+
+		// Convert the DeploymentList object to JSON
+		jsonResponse, err := json.Marshal(deployments)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// GetRoleBindings handles HTTP requests to retrieve RoleBinding resources.
+func GetRoleBindings(w http.ResponseWriter, r *http.Request) {
+
+	// Sample response for the RoleBindingList
+	roleBindings := &RbacV1.RoleBindingList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBindingList",
+			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
-		Items: []appsv1.Deployment{}, // Empty list of deployments
+		Items: []RbacV1.RoleBinding{}, // Placeholder for RoleBinding items
 	}
 
-	// Convert the DeploymentList object to JSON
-	jsonResponse, err := json.Marshal(deployments)
+	// Convert the RoleBindingList object to JSON
+	jsonResponse, err := json.Marshal(roleBindings)
 	if err != nil {
 		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
 		return
@@ -137,6 +243,254 @@ func GetDeployments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// GetHPAs handles HTTP requests to retrieve HorizontalPodAutoscaler resources.
+func GetHPAs(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	namespace := vars["namespace"]
+
+	// Check if the namespace is "namespace2"
+	if namespace == "namespace2" {
+		// Create three sample HPAs for namespace2
+		hpas := &autoscalingv1.HorizontalPodAutoscalerList{
+			ListMeta: metav1.ListMeta{
+				ResourceVersion: "320850103", // Set a sample resource version
+			},
+			Items: []autoscalingv1.HorizontalPodAutoscaler{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "hpa1",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "hpa2",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "hpa3",
+						Namespace: "namespace2",
+					},
+				},
+			},
+		}
+
+		// Convert the HPAList object to JSON
+		jsonResponse, err := json.Marshal(hpas)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// If the namespace is not "namespace2", return an empty list of HPAs
+		hpas := &autoscalingv1.HorizontalPodAutoscalerList{
+			ListMeta: metav1.ListMeta{
+				ResourceVersion: "0",
+			},
+			Items: []autoscalingv1.HorizontalPodAutoscaler{},
+		}
+
+		// Convert the HPAList object to JSON
+		jsonResponse, err := json.Marshal(hpas)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// GetCronJobs handles HTTP requests to retrieve CronJob resources.
+func GetCronJobs(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	namespace := vars["namespace"]
+
+	// Check if the namespace is "namespace2"
+	if namespace == "namespace2" {
+		// Create three sample CronJobs for namespace2
+		cronJobs := &batchv1.CronJobList{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "CronJobList",
+				APIVersion: "batch/v1",
+			},
+			Items: []batchv1.CronJob{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cronjob1",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cronjob2",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "cronjob3",
+						Namespace: "namespace2",
+					},
+				},
+			},
+		}
+
+		// Convert the CronJobList object to JSON
+		jsonResponse, err := json.Marshal(cronJobs)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// If the namespace is not "namespace2", return an empty list of CronJobs
+		cronJobs := &batchv1.CronJobList{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "CronJobList",
+				APIVersion: "batch/v1",
+			},
+			Items: []batchv1.CronJob{},
+		}
+
+		// Convert the CronJobList object to JSON
+		jsonResponse, err := json.Marshal(cronJobs)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// CustomResourceDefinitionsHandler handles HTTP requests to retrieve Custom Resource Definitions (CRDs).
+func GetCustomResourceDefinitions(w http.ResponseWriter, r *http.Request) {
+	// Sample response for the CRDList
+	crdList := &apiextensionv1.CustomResourceDefinitionList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "CustomResourceDefinitionList",
+			APIVersion: "apiextensions.k8s.io/v1",
+		},
+		Items: []apiextensionv1.CustomResourceDefinition{}, // Placeholder for CRD items
+	}
+
+	// Convert the CRDList object to JSON
+	jsonResponse, err := json.Marshal(crdList)
+	if err != nil {
+		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the response headers and write the JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetClusterRoles handles HTTP requests to retrieve ClusterRoles.
+func GetClusterRoles(w http.ResponseWriter, r *http.Request) {
+	// Sample response for the ClusterRoleList
+	clusterRoles := &RbacV1.ClusterRoleList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleList",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		Items: []RbacV1.ClusterRole{
+			{
+				// Add details for each ClusterRole as needed
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "ClusterRole",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				// Add metadata, rules, etc.
+			},
+		},
+	}
+
+	// Convert the ClusterRoleList object to JSON
+	jsonResponse, err := json.Marshal(clusterRoles)
+	if err != nil {
+		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the response headers and write the JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
+// GetClusterRoleBindings handles HTTP requests to retrieve ClusterRoleBinding resources.
+func GetClusterRoleBindings(w http.ResponseWriter, r *http.Request) {
+	// Sample response for the ClusterRoleBindingList
+	clusterRoleBindings := &RbacV1.ClusterRoleBindingList{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRoleBindingList",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		Items: []RbacV1.ClusterRoleBinding{}, // Placeholder for ClusterRoleBinding items
+	}
+
+	// Convert the ClusterRoleBindingList object to JSON
+	jsonResponse, err := json.Marshal(clusterRoleBindings)
+	if err != nil {
+		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the response headers and write the JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(jsonResponse)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+		return
+	}
+}
+
 func GetIngresses(w http.ResponseWriter, r *http.Request) {
 	// Create an empty IngressList object
 	ingresses := &networkingv1.IngressList{
@@ -263,185 +617,6 @@ func GetRoles(w http.ResponseWriter, r *http.Request) {
 
 	// Convert the RoleList object to JSON
 	jsonResponse, err := json.Marshal(roles)
-	if err != nil {
-		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers and write the JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// GetRoleBindings handles HTTP requests to retrieve RoleBinding resources.
-func GetRoleBindings(w http.ResponseWriter, r *http.Request) {
-
-	// Sample response for the RoleBindingList
-	roleBindings := &RbacV1.RoleBindingList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "RoleBindingList",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		Items: []RbacV1.RoleBinding{}, // Placeholder for RoleBinding items
-	}
-
-	// Convert the RoleBindingList object to JSON
-	jsonResponse, err := json.Marshal(roleBindings)
-	if err != nil {
-		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers and write the JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// GetHPAs handles HTTP requests to retrieve HorizontalPodAutoscaler resources.
-func GetHPAs(w http.ResponseWriter, r *http.Request) {
-
-	// Sample response for the HorizontalPodAutoscalerList
-	hpas := &autoscalingv1.HorizontalPodAutoscalerList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "HorizontalPodAutoscalerList",
-			APIVersion: "autoscaling/v1",
-		},
-		Items: []autoscalingv1.HorizontalPodAutoscaler{}, // Placeholder for HPA items
-	}
-
-	// Convert the HorizontalPodAutoscalerList object to JSON
-	jsonResponse, err := json.Marshal(hpas)
-	if err != nil {
-		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers and write the JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// GetCronJobs handles HTTP requests to retrieve CronJob resources.
-func GetCronJobs(w http.ResponseWriter, r *http.Request) {
-	// Sample response for the CronJobList
-	cronJobs := &batchv1.CronJobList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "CronJobList",
-			APIVersion: "batch/v1beta1",
-		},
-		Items: []batchv1.CronJob{}, // Placeholder for CronJob items
-	}
-
-	// Convert the CronJobList object to JSON
-	jsonResponse, err := json.Marshal(cronJobs)
-	if err != nil {
-		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers and write the JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// CustomResourceDefinitionsHandler handles HTTP requests to retrieve Custom Resource Definitions (CRDs).
-func GetCustomResourceDefinitions(w http.ResponseWriter, r *http.Request) {
-	// Sample response for the CRDList
-	crdList := &apiextensionv1.CustomResourceDefinitionList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "CustomResourceDefinitionList",
-			APIVersion: "apiextensions.k8s.io/v1",
-		},
-		Items: []apiextensionv1.CustomResourceDefinition{}, // Placeholder for CRD items
-	}
-
-	// Convert the CRDList object to JSON
-	jsonResponse, err := json.Marshal(crdList)
-	if err != nil {
-		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers and write the JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// GetClusterRoles handles HTTP requests to retrieve ClusterRoles.
-func GetClusterRoles(w http.ResponseWriter, r *http.Request) {
-	// Sample response for the ClusterRoleList
-	clusterRoles := &RbacV1.ClusterRoleList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleList",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		Items: []RbacV1.ClusterRole{
-			{
-				// Add details for each ClusterRole as needed
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "ClusterRole",
-					APIVersion: "rbac.authorization.k8s.io/v1",
-				},
-				// Add metadata, rules, etc.
-			},
-		},
-	}
-
-	// Convert the ClusterRoleList object to JSON
-	jsonResponse, err := json.Marshal(clusterRoles)
-	if err != nil {
-		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Set the response headers and write the JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
-		return
-	}
-}
-
-// GetClusterRoleBindings handles HTTP requests to retrieve ClusterRoleBinding resources.
-func GetClusterRoleBindings(w http.ResponseWriter, r *http.Request) {
-	// Sample response for the ClusterRoleBindingList
-	clusterRoleBindings := &RbacV1.ClusterRoleBindingList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "ClusterRoleBindingList",
-			APIVersion: "rbac.authorization.k8s.io/v1",
-		},
-		Items: []RbacV1.ClusterRoleBinding{}, // Placeholder for ClusterRoleBinding items
-	}
-
-	// Convert the ClusterRoleBindingList object to JSON
-	jsonResponse, err := json.Marshal(clusterRoleBindings)
 	if err != nil {
 		http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
 		return

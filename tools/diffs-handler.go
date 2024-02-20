@@ -68,6 +68,8 @@ func FormatDiffHumanReadable(differences []DAO.DiffWithName) string {
 				}
 				formattedDiff.WriteString("\n")
 			}
+		} else {
+			fmt.Println("No differences found.")
 		}
 	}
 	return formattedDiff.String()
@@ -76,7 +78,6 @@ func FormatDiffHumanReadable(differences []DAO.DiffWithName) string {
 func startsWithMapPattern(input string) (string, string, bool) {
 	// Define the prefix pattern
 	prefix := "map["
-
 	// Check if the input string starts with the prefix
 	if strings.Contains(input, prefix) {
 		// Find the index of the closing bracket "]"
@@ -122,11 +123,9 @@ func prettifyJSON(jsonStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	prettyJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return "", err
 	}
-
 	return string(prettyJSON), nil
 }

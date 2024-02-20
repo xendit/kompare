@@ -123,7 +123,6 @@ func prettifyJSON(jsonStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	prettyJSON, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return "", err

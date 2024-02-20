@@ -4,6 +4,8 @@ Kompare is a Go CLI runner for comparing two clusters. This software compares tw
 
 When comparing two Kubernetes clusters, you may encounter challenges such as ignoring Kubernetes resource definition subtypes like UID and dates, or filtering and comparing only specific types of objects. Existing tools may not offer the flexibility to define such criteria, which led us to create Kompare.
 
+![Kompare: Simplifying Kubernetes Cluster Comparison](https://miro.medium.com/v2/resize:fit:1400/1*oOPoArcHhU26oM0iUuGjAA.png)
+
 ## Why Do We Need Kompare
 
 This CLI tool is designed to compare two clusters to determine if they are different or if they can be interchangeable. Enterprises often maintain multiple Kubernetes clusters for redundancy or to facilitate upgrades. We primarily use this tool to compare a production cluster (source cluster) with a new cluster intended for production use or to run side by side.

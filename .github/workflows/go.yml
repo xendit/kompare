@@ -25,7 +25,7 @@ jobs:
       run: go test -v ./... -cover
 
     - name: linter
-      run: golangci-lint run ./...
+      uses: golangci/golangci-lint-action@v4
 
     # - name: Build
     #   run: go build -v ./...

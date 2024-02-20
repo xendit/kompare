@@ -31,8 +31,3 @@ func CompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientse
 	}
 	return CompareVerboseVSNonVerbose(sourceConfigMaps, targetConfigMaps, diffCriteria, TheArgs)
 }
-
-func GenericCompareConfigMaps(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespaceName string, TheArgs cli.ArgumentsReceivedValidated) ([]DAO.DiffWithName, error) {
-	diffCriteria := []string{"Data", "Name", "Annotations"}
-	return GenericCompareResources(clientsetToSource, clientsetToTarget, namespaceName, query.ListConfigMapsGeneric, diffCriteria, TheArgs)
-}

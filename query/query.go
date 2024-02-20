@@ -154,13 +154,6 @@ func ListConfigMaps(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.
 	}
 	return ListConfigMaps, nil
 }
-func ListConfigMapsGeneric(clientset *kubernetes.Clientset, nameSpace string) (interface{}, error) {
-	ListConfigMaps, err := clientset.CoreV1().ConfigMaps(nameSpace).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("Failed to query the Config Maps List: %w", err)
-	}
-	return ListConfigMaps, nil
-}
 
 // Get Secrets list.
 func ListSecrets(clientset *kubernetes.Clientset, nameSpace string) (*Corev1.SecretList, error) {
@@ -180,7 +173,6 @@ func ListServiceAccounts(clientset *kubernetes.Clientset, nameSpace string) (*Co
 	return ListServiceAccounts, nil
 }
 
-// TODO
 // roles
 func ListRoles(clientset *kubernetes.Clientset, nameSpace string) (*RbacV1.RoleList, error) {
 	Listroles, err := clientset.RbacV1().Roles(nameSpace).List(context.TODO(), metav1.ListOptions{})
@@ -209,7 +201,6 @@ func ListClusterRoles(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleList,
 }
 
 // clusterrolebindings
-// rolebindings
 func ListClusterRoleBindings(clientset *kubernetes.Clientset) (*RbacV1.ClusterRoleBindingList, error) {
 	ListClusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {

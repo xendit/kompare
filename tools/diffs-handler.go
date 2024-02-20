@@ -72,7 +72,6 @@ func FormatDiffHumanReadable(differences []DAO.DiffWithName) string {
 			fmt.Println("No differences found.")
 		}
 	}
-
 	return formattedDiff.String()
 }
 

@@ -128,6 +128,5 @@ func prettifyJSON(jsonStr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return string(prettyJSON), nil
 }

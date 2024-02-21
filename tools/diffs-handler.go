@@ -69,7 +69,11 @@ func FormatDiffHumanReadable(differences []DAO.DiffWithName) string {
 				formattedDiff.WriteString("\n")
 			}
 		} else {
-			fmt.Println("No differences found.")
+			if diff.Namespace != "" {
+				fmt.Printf("No differences found; Object Name %s, Kubernetes resource definition type %s, Namespace %s\n", diff.Name, diff.PropertyName, diff.Namespace)
+			} else {
+				fmt.Printf("No differences found; Object Name %s, Kubernetes resource definition type %s\n", diff.Name, diff.PropertyName)
+			}
 		}
 	}
 	return formattedDiff.String()

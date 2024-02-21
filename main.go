@@ -20,21 +20,21 @@ func main() {
 	// Parse CLI arguments
 	args := cli.PaserReader()
 	if args.Err != nil {
-		err := fmt.Errorf("Error parsing arguments: %v", args.Err)
+		err := fmt.Errorf("error parsing arguments: %v", args.Err)
 		panic(err)
 	}
 
 	// Connect to source cluster
 	clientsetToSource, err := connect.ConnectToSource(args.SourceClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		err = fmt.Errorf("Error connecting to source cluster: %v\n", err)
+		err = fmt.Errorf("error connecting to source cluster: %v", err)
 		panic(err)
 	}
 
 	// Connect to target cluster
 	clientsetToTarget, err := connect.ContextSwitch(args.TargetClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		err = fmt.Errorf("Error switching context: %v\n", err)
+		err = fmt.Errorf("error switching context: %v", err)
 		panic(err)
 	}
 
@@ -47,14 +47,14 @@ func main() {
 		fmt.Println("Using", args.NamespaceName, "namespace")
 		sourceNameSpace, err = query.GetNamespace(clientsetToSource, args.NamespaceName)
 		if err != nil {
-			err = fmt.Errorf("Error listing namespaces: %v\n", err)
+			err = fmt.Errorf("error listing namespaces: %v", err)
 			panic(err)
 		}
 		sourceNameSpacesList = &v1.NamespaceList{Items: []v1.Namespace{*sourceNameSpace}}
 	case "wildcard":
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
 		if err != nil {
-			err = fmt.Errorf("Error listing namespaces: %v\n", err)
+			err = fmt.Errorf("error listing namespaces: %v", err)
 			panic(err)
 		}
 		sourceNameSpacesList = filterNamespaces(sourceNameSpacesList, args.NamespaceName)
@@ -62,7 +62,7 @@ func main() {
 		iterateGoglabObjects(clientsetToSource, clientsetToTarget, args)
 		sourceNameSpacesList, err = query.ListNameSpaces(clientsetToSource)
 		if err != nil {
-			err = fmt.Errorf("Error listing namespaces: %v\n", err)
+			err = fmt.Errorf("error listing namespaces: %v", err)
 			panic(err)
 		}
 	}
@@ -86,25 +86,25 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 				case "namespace":
 					_, err := compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing Namespaces: %v", err)
+						err = fmt.Errorf("error comparing Namespaces: %v", err)
 						panic(err)
 					}
 				case "crd":
 					_, err := compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing CRDs: %v", err)
+						err = fmt.Errorf("error comparing CRDs: %v", err)
 						panic(err)
 					}
 				case "clusterrole":
 					_, err := compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing Cluster Role: %v", err)
+						err = fmt.Errorf("error comparing Cluster Role: %v", err)
 						panic(err)
 					}
 				case "clusterrolebinding":
 					_, err := compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing Cluster Role: %v", err)
+						err = fmt.Errorf("error comparing Cluster Role: %v", err)
 						panic(err)
 					}
 				}
@@ -122,25 +122,25 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 				case "namespace":
 					_, err := compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing Namspace: %v", err)
+						err = fmt.Errorf("error comparing Namspace: %v", err)
 						panic(err)
 					}
 				case "crd":
 					_, err := compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing CRDs: %v", err)
+						err = fmt.Errorf("error comparing CRDs: %v", err)
 						panic(err)
 					}
 				case "clusterrole":
 					_, err := compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing Cluster Role: %v", err)
+						err = fmt.Errorf("error comparing Cluster Role: %v", err)
 						panic(err)
 					}
 				case "clusterrolebinding":
 					_, err := compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
 					if err != nil {
-						err = fmt.Errorf("Error comparing Cluster Role Binding: %v", err)
+						err = fmt.Errorf("error comparing Cluster Role Binding: %v", err)
 						panic(err)
 					}
 				}
@@ -153,22 +153,22 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 	if args.Include == nil && args.Exclude == nil {
 		_, err := compare.CompareNameSpaces(clientsetToSource, clientsetToTarget, args)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Namespaces: %v", err)
+			err = fmt.Errorf("error comparing Namespaces: %v", err)
 			panic(err)
 		}
 		_, err = compare.CompareCRDs(args.TargetClusterContext, args.KubeconfigFile, args)
 		if err != nil {
-			err = fmt.Errorf("Error comparing CRDs: %v", err)
+			err = fmt.Errorf("error comparing CRDs: %v", err)
 			panic(err)
 		}
 		_, err = compare.CompareClusterRoles(clientsetToSource, clientsetToTarget, args)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Cluster Roles: %v", err)
+			err = fmt.Errorf("error comparing Cluster Roles: %v", err)
 			panic(err)
 		}
 		_, err = compare.CompareClusterRoleBindings(clientsetToSource, clientsetToTarget, args)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Cluster Role Bindings: %v", err)
+			err = fmt.Errorf("error comparing Cluster Role Bindings: %v", err)
 			panic(err)
 		}
 		comparisonPerformed = true
@@ -239,61 +239,61 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 	case "deployment":
 		_, err := compare.CompareDeployments(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Deployments: %v", err)
+			err = fmt.Errorf("error comparing Deployments: %v", err)
 			panic(err)
 		}
 	case "ingress":
 		_, err := compare.CompareIngresses(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Ingresses: %v", err)
+			err = fmt.Errorf("error comparing Ingresses: %v", err)
 			panic(err)
 		}
 	case "service":
 		_, err := compare.CompareServices(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Services: %v", err)
+			err = fmt.Errorf("error comparing Services: %v", err)
 			panic(err)
 		}
 	case "sa":
 		_, err := compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Service Accounts: %v", err)
+			err = fmt.Errorf("error comparing Service Accounts: %v", err)
 			panic(err)
 		}
 	case "configmap":
 		_, err := compare.CompareConfigMaps(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Config Maps: %v", err)
+			err = fmt.Errorf("error comparing Config Maps: %v", err)
 			panic(err)
 		}
 	case "secret":
 		_, err := compare.CompareSecrets(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Secrets: %v", err)
+			err = fmt.Errorf("error comparing Secrets: %v", err)
 			panic(err)
 		}
 	case "role":
 		_, err := compare.CompareRoles(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Roles: %v", err)
+			err = fmt.Errorf("error comparing Roles: %v", err)
 			panic(err)
 		}
 	case "rolebinding":
 		_, err := compare.CompareRoleBindings(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Role Bindings: %v", err)
+			err = fmt.Errorf("error comparing Role Bindings: %v", err)
 			panic(err)
 		}
 	case "hpa":
 		_, err := compare.CompareHPAs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Horizontal Pod Autoscalers: %v", err)
+			err = fmt.Errorf("error comparing Horizontal Pod Autoscalers: %v", err)
 			panic(err)
 		}
 	case "cronjob":
 		_, err := compare.CompareCronJobs(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
-			err = fmt.Errorf("Error comparing Cron Jobs: %v", err)
+			err = fmt.Errorf("error comparing Cron Jobs: %v", err)
 			panic(err)
 		}
 	}

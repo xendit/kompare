@@ -158,6 +158,7 @@ func ValidateKubernetesObjects(objects []string) ([]string, []string) {
 		"configmap":          {"configmap", "configmaps", "cm"},
 		"secret":             {"secret", "secrets"},
 		"namespace":          {"namespace", "ns", "namespaces"},
+		"hpa":                {"hpa", "horizontalpodautoscaler", "horizontalpodautoscalers", "hpas"},
 		"role":               {"role", "roles"},
 		"rolebinding":        {"rolebinding", "rolebindings"},
 		"clusterrole":        {"clusterrole", "clusterroles"},

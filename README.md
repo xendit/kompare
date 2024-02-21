@@ -124,9 +124,9 @@ Finished Deployment for namespace: velero
 Finished all comparison works!
 ```
 
-**Notice:** The software assumes the current context as the source cluster by default (use `-s` or `--source` to set a different source context). The `-t` option specifies the destination cluster.
+**Notice:** The software assumes the current context as the source cluster by default (use `-s` or `--source` to set a different source context). The `-t` option specifies the destination/target cluster in your comparison. If it was number comparison -s is LHS and -t is RHS.
 
-**Notice:** Therefore, the source cluster is typically considered the source of truth for the comparison.
+**Notice:** The source cluster is typically considered the source of truth for the comparison in Kompare.
 
 ### Prerequisites
 

@@ -17,7 +17,7 @@ func CompareHPAs(clientsetToSource, clientsetToTarget *kubernetes.Clientset, nam
 		fmt.Printf("Error getting services list: %v\n", err)
 		return TheDiff, err
 	}
-	targetHPAs, err := query.ListHPAs(clientsetToSource, namespaceName)
+	targetHPAs, err := query.ListHPAs(clientsetToTarget, namespaceName)
 	if err != nil {
 		fmt.Printf("Error getting services list: %v\n", err)
 		return TheDiff, err

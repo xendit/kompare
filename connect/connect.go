@@ -17,7 +17,7 @@ import (
 func CreateConfig(a_config *string) (*rest.Config, error) {
 	config_built, err := clientcmd.BuildConfigFromFlags("", *a_config)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get the *rest.Config: %w", err)
+		return nil, fmt.Errorf("failed to get the *rest.Config: %w", err)
 	}
 	return config_built, nil
 }
@@ -31,7 +31,7 @@ func CreateConfig(a_config *string) (*rest.Config, error) {
 func NewK8sConnectionConfig(a_config_built *rest.Config) (*kubernetes.Clientset, error) {
 	the_clientset, err := kubernetes.NewForConfig(a_config_built)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get the *kubernetes.Clientset: %w", err)
+		return nil, fmt.Errorf("failed to get the *kubernetes.Clientset: %w", err)
 	}
 	return the_clientset, nil
 }
@@ -45,7 +45,7 @@ func NewK8sConnectionConfig(a_config_built *rest.Config) (*kubernetes.Clientset,
 func ConnectNow(a_config *string) (*kubernetes.Clientset, error) {
 	config_built, err := CreateConfig(a_config)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get the *rest.Config: %w", err)
+		return nil, fmt.Errorf("failed to get the *rest.Config: %w", err)
 	}
 	return NewK8sConnectionConfig(config_built)
 }
@@ -60,12 +60,12 @@ func ConnectNow(a_config *string) (*kubernetes.Clientset, error) {
 func ContextSwitch(contextName string, kubeconfig *string) (*kubernetes.Clientset, error) {
 	config, err := BuildConfigWithContextFromFlags(contextName, *kubeconfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get the *rest.Config: %w", err)
+		return nil, fmt.Errorf("failed to get the *rest.Config: %w", err)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get the *kubernetes.Clientset: %w", err)
+		return nil, fmt.Errorf("failed to get the *kubernetes.Clientset: %w", err)
 	}
 	return clientset, nil
 }
@@ -98,7 +98,7 @@ func ConnectToSource(strSourceClusterContext string, configFile *string) (*kuber
 		clientsetToSource, err = ConnectNow(configFile)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get the *kubernetes.Clientset: %w", err)
+		return nil, fmt.Errorf("failed to get the *kubernetes.Clientset: %w", err)
 	}
 	return clientsetToSource, nil
 }

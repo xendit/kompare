@@ -74,7 +74,7 @@ This project is currently in development. To use it, either build it with Go or 
 ```
 The command with go would be `go run main.go -t some-target-context`.
 
-see ![this introductory post](https://blog.xendit.engineer/kompare-simplifying-kubernetes-cluster-comparison-ced2792716d9) for mode details. 
+see [this introductory post](https://blog.xendit.engineer/kompare-simplifying-kubernetes-cluster-comparison-ced2792716d9) for mode details. 
 ### Example Command
 
 To compare the current context with "MySecondContext-Cluster", and view the differences using the `-v` (verbose see the help `-vv`) option, also in this case we are using `namespace kube-system` and we only want the `deployments`:

@@ -101,7 +101,7 @@ Another example, we use velero for backups and want to see if both clusters have
 ```
 ./kompare -t MySecondContext-Cluster -vv -n velero -i deploy
 We will use current kubeconfig context as 'source cluster'.
-We will use mycluster kubeconfig context as 'target cluster'.
+We will use MySecondContext-Cluster kubeconfig context as 'target cluster'.
 Using velero namespace
 Looping namespace: velero
 Deployment

@@ -16,10 +16,14 @@ This CLI tool is designed to compare two clusters to determine if they are diffe
 
 1. **Source cluster:** The original cluster, analogous to the "left-hand side" (LHS) in a number comparison.
 2. **Target cluster:** The destination cluster, analogous to the "right-hand side" (RHS) or the "second number" in a number comparison.
-3. The tool includes a help option that can be accessed using the `-h` flag.
 
-```sh
-go run main.go -h
+## Getting Started
+You can run it by building out directly with go if you have golang installed:
+```
+$ git clone https://github.com/xendit/kompare.git
+$ cd kompare
+$ go build -o kompare .
+$ ./kompare -h
 usage: print [-h|--help] [-c|--conf "<value>"] [-s|--src "<value>"] -t|--target
              "<value>" [-v|--verbose] [-i|--include "<value>"] [-e|--exclude
              "<value>"] [-n|--namespace "<value>"] [-f|--filter "<value>"]
@@ -49,31 +53,63 @@ Arguments:
   -f  --filter     Filter what parts of the object I want to compare. must be
                    used together with -i option to apply to that type of
                    objects
+$
 ```
-So far only the -t option is required.
 
-## Getting Started
+To run directly with golang if you have it installed:
+```
+$ git clone https://github.com/xendit/kompare.git
+$ cd kompare
+$ go run main.go -h
+(...)
+```
+
+### Using the software to compare two kubernetes clusters:
+Notice: The only option requires is -t.
 
 This project is currently in development. To use it, either build it with Go or run it directly from the console:
 
 ```
-go run main.go -t some-target-context.
+./kompare -t some-target-context.
 ```
-see [this introductory post](https://blog.xendit.engineer/kompare-simplifying-kubernetes-cluster-comparison-ced2792716d9) for mode details. 
+The command with go would be `go run main.go -t some-target-context`.
+
+see ![this introductory post](https://blog.xendit.engineer/kompare-simplifying-kubernetes-cluster-comparison-ced2792716d9) for mode details. 
 ### Example Command
 
-To compare the current context with "MySecondContext-Cluster" and view the differences using the `-v` (verbose) option:
+To compare the current context with "MySecondContext-Cluster", and view the differences using the `-v` (verbose see the help `-vv`) option, also in this case we are using `namespace kube-system` and we only want the `deployments`:
 
 ```
-go run main.go -t MySecondContext-Cluster -v -n velero -e svc,role,rolebinding
+./kompare -t MySecondContext-Cluster  -v -n kube-system -i deploy
 We will use current kubeconfig context as 'source cluster'.
 We will use MySecondContext-Cluster kubeconfig context as 'target cluster'.
-Using  velero  namespace
-Looping on NS: velero
-Deployments
+Using kube-system namespace
+Looping namespace: kube-system
+Deployment
+******************************************************************************************************
+- First cluster has Deployment in the list: blackbox-controller, but it's not in the second cluster
+
+******************************************************************************************************
+- Second cluster has Deployment in the list: aws-load-balancer-controller, but it's not in the first cluster
+
+******************************************************************************************************
+Finished Deployment for namespace: kube-system
+Finished all comparison works!
+```
+
+Another example, we use velero for backups and want to see if both clusters have the same version deployed:
+```
+./kompare -t MySecondContext-Cluster -vv -n velero -i deploy
+We will use current kubeconfig context as 'source cluster'.
+We will use mycluster kubeconfig context as 'target cluster'.
+Using velero namespace
+Looping namespace: velero
+Deployment
 ******************************************************************************************************
 Done compering source cluster versus target cluster's  Deployment in the list
 Done compering target cluster versus source cluster's  Deployment in the list
+No differences found; Object Name velero, Kubernetes resource definition type Name, Namespace velero
+Kubernetes resource definition type: Spec.Template.Spec
 Object Name: velero
 Namespace: velero
 Differences:
@@ -84,24 +120,10 @@ Differences:
 - TerminationGracePeriodSeconds: 3600 != 30
 
 
-Finished deployments for namespace:  velero
-Service Accounts
-***************************************************************************************************
-Done compering source cluster versus target cluster's  Service in the list
-Done compering target cluster versus source cluster's  Service in the list
-
-Finished Services Accounts for namespace:  velero
-Secrets
-***************************************************************************************************
-Done compering source cluster versus target cluster's  Service in the list
-Done compering target cluster versus source cluster's  Service in the list
-
-Finished Secrets for namespace:  velero
-Config Maps (CM)
-Finished Config Maps (CM) for namespace:  velero
-... Done with all resources in ns: velero.
-Finished!
+Finished Deployment for namespace: velero
+Finished all comparison works!
 ```
+
 **Notice:** The software assumes the current context as the source cluster by default (use `-s` or `--source` to set a different source context). The `-t` option specifies the destination cluster.
 
 **Notice:** Therefore, the source cluster is typically considered the source of truth for the comparison.

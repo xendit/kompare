@@ -27,14 +27,14 @@ func main() {
 	// Connect to source cluster
 	clientsetToSource, err := connect.ConnectToSource(args.SourceClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		err = fmt.Errorf("error connecting to source cluster: %v\n", err)
+		err = fmt.Errorf("error connecting to source cluster: %v", err)
 		panic(err)
 	}
 
 	// Connect to target cluster
 	clientsetToTarget, err := connect.ContextSwitch(args.TargetClusterContext, &args.KubeconfigFile)
 	if err != nil {
-		err = fmt.Errorf("error switching context: %v\n", err)
+		err = fmt.Errorf("error switching context: %v", err)
 		panic(err)
 	}
 
@@ -184,7 +184,7 @@ func iterateGoglabObjects(clientsetToSource, clientsetToTarget *kubernetes.Clien
 func compareAllResourcesInNamespace(clientsetToSource, clientsetToTarget *kubernetes.Clientset, namespace string, TheArgs cli.ArgumentsReceivedValidated) {
 	fmt.Printf("Looping on Namespace: %s\n", namespace)
 	// Compare all resources for the namespace
-	resources := []string{"deployment", "ingress", "service", "serviceaccount", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+	resources := []string{"deployment", "ingress", "service", "serviceaccount", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob", "networkpolicy"}
 
 	// Create a title case converter for English
 	titleCase := cases.Title(language.English)
@@ -209,7 +209,7 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 	titleCase := cases.Title(language.English)
 
 	// Define all resources
-	allResources := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding"}
+	resources := []string{"deployment", "ingress", "service", "serviceaccout", "configmap", "secret", "role", "rolebinding", "networkpolicy", "hpa", "cronjob"}
 
 	// Compare resources based on include list
 	for _, resource := range includeResources {
@@ -222,7 +222,7 @@ func compareResourcesByLists(clientsetToSource, clientsetToTarget *kubernetes.Cl
 
 	// Compare resources based on exclude list
 	if excludeResources != nil {
-		for _, resource := range allResources {
+		for _, resource := range resources {
 			// Check if resource is not in the exclude list
 			if !tools.IsInList(resource, excludeResources) {
 				titleResource := titleCase.String(resource)
@@ -254,7 +254,7 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 			err = fmt.Errorf("error comparing Services: %v", err)
 			panic(err)
 		}
-	case "sa":
+	case "serviceaccount":
 		_, err := compare.CompareServiceAccounts(clientsetToSource, clientsetToTarget, namespace, TheArgs)
 		if err != nil {
 			err = fmt.Errorf("error comparing Service Accounts: %v", err)
@@ -296,6 +296,12 @@ func compareResource(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 			err = fmt.Errorf("error comparing Cron Jobs: %v", err)
 			panic(err)
 		}
+	case "networkpolicy":
+		_, err := compare.CompareNetworkPolicies(clientsetToSource, clientsetToTarget, namespace, TheArgs)
+		if err != nil {
+			err = fmt.Errorf("error comparing Network Policies: %v", err)
+			panic(err)
+		}
 	}
 }
 
@@ -308,7 +314,7 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 		}
 	} else {
 		// Compare resources based on include or exclude lists
-		resources := []string{"deployment", "ingress", "service", "serviceaccount", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+		resources := []string{"deployment", "ingress", "service", "serviceaccount", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob", "networkpolicy"}
 		if tools.AreAnyInLists(TheArgs.Include, resources) || tools.AreAnyInLists(TheArgs.Exclude, resources) {
 			for _, ns := range sourceNameSpacesList.Items {
 				compareResourcesByLists(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)

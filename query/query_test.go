@@ -622,3 +622,45 @@ func TestListRoleBindings2(t *testing.T) {
 	}
 
 }
+
+// TestNetworkPolicies tests the ListNetworkPolicies function.
+func TestListNetworkPolicies(t *testing.T) {
+	// Set up test environment and get the temporary kubeconfig file
+	_, _, tempKubeconfig := mock.SetupTestEnvironment()
+	defer tempKubeconfig.Close() // Close the file after the test completes
+
+	// Load the kubeconfig data
+	tempKubeconfigByte, err := os.ReadFile(tempKubeconfig.Name())
+	if err != nil {
+		t.Fatalf("Error reading kubeconfig file: %v", err)
+	}
+	kubeconfig, err := clientcmd.Load(tempKubeconfigByte)
+	if err != nil {
+		t.Fatalf("Error loading kubeconfig: %v", err)
+	}
+
+	// Choose one of the contexts from the kubeconfig
+	var testContext string
+	for context := range kubeconfig.Contexts {
+		testContext = context
+		break // Choose the first context, you can modify this logic as needed
+	}
+
+	// Connect to the Kubernetes cluster using the test context and kubeconfig file path
+	x := tempKubeconfig.Name()
+	config, err := connect.ConnectToSource(testContext, &x)
+	if err != nil {
+		t.Fatalf("Error creating config: %v", err)
+	}
+
+	// Perform the test
+	networkPolicies, err := ListNetworkPolicies(config, "namespace2")
+	if err != nil {
+		t.Errorf("Expected no error, got: %v", err)
+	}
+
+	expectedLength := 3 // Update this value with the expected number of network policies
+	if len(networkPolicies.Items) != expectedLength {
+		t.Errorf("Expected %d network policies, got: %d", expectedLength, len(networkPolicies.Items))
+	}
+}

@@ -83,6 +83,10 @@ var typeAssertions = map[string]TypeAssertionFunc{
 		val, ok := obj.(*RbacV1.ClusterRoleBindingList)
 		return ok, val
 	},
+	"*networkingv1.NetworkPolicyList": func(obj interface{}) (bool, interface{}) {
+		val, ok := obj.(*networkingv1.NetworkPolicyList)
+		return ok, val
+	},
 }
 
 func GetTypeInfo(obj interface{}) (string, interface{}) {

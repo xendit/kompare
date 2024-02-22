@@ -40,6 +40,7 @@ func StartMockCluster() (string, *mux.Router, error) {
 	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/clusterroles", GetClusterRoles).Methods("GET")
 	r.HandleFunc("/apis/rbac.authorization.k8s.io/v1/clusterrolebindings", GetClusterRoleBindings).Methods("GET")
 	r.HandleFunc("/api/v1/namespaces/{namespace}/serviceaccounts", GetServiceAccounts).Methods("GET")
+	r.HandleFunc("/apis/networking.k8s.io/v1/namespaces/{namespace}/networkpolicies", GetNetworkPolicies).Methods("GET")
 
 	// Create a HTTP server instance
 	server := &http.Server{
@@ -704,6 +705,81 @@ func GetServices(w http.ResponseWriter, r *http.Request) {
 
 		// Convert the ServiceList object to JSON
 		jsonResponse, err := json.Marshal(services)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func GetNetworkPolicies(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	namespace := vars["namespace"]
+
+	// Check if the namespace is "namespace2"
+	if namespace == "namespace2" {
+		// Create three sample network policies for namespace2
+		networkPolicies := &networkingv1.NetworkPolicyList{
+			ListMeta: metav1.ListMeta{
+				ResourceVersion: "320850103", // Set a sample resource version
+			},
+			Items: []networkingv1.NetworkPolicy{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "networkpolicy1",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "networkpolicy2",
+						Namespace: "namespace2",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "networkpolicy3",
+						Namespace: "namespace2",
+					},
+				},
+			},
+		}
+
+		// Convert the NetworkPolicyList object to JSON
+		jsonResponse, err := json.Marshal(networkPolicies)
+		if err != nil {
+			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response headers and write the JSON response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(jsonResponse)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error writing the JSON response: %v", err), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// If the namespace is not "namespace2", return an empty list of network policies
+		networkPolicies := &networkingv1.NetworkPolicyList{
+			ListMeta: metav1.ListMeta{
+				ResourceVersion: "0",
+			},
+			Items: []networkingv1.NetworkPolicy{},
+		}
+
+		// Convert the NetworkPolicyList object to JSON
+		jsonResponse, err := json.Marshal(networkPolicies)
 		if err != nil {
 			http.Error(w, "Error marshalling JSON response", http.StatusInternalServerError)
 			return

@@ -308,8 +308,8 @@ func iterateNamespaces(sourceNameSpacesList *v1.NamespaceList, clientsetToSource
 		}
 	} else {
 		// Compare resources based on include or exclude lists
-		listTypes := []string{"deployment", "ingress", "service", "sa", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
-		if tools.AreAnyInLists(TheArgs.Include, listTypes) || tools.AreAnyInLists(TheArgs.Exclude, listTypes) {
+		resources := []string{"deployment", "ingress", "service", "serviceaccount", "configmap", "secret", "role", "rolebinding", "hpa", "cronjob"}
+		if tools.AreAnyInLists(TheArgs.Include, resources) || tools.AreAnyInLists(TheArgs.Exclude, resources) {
 			for _, ns := range sourceNameSpacesList.Items {
 				compareResourcesByLists(clientsetToSource, clientsetToTarget, ns.Name, TheArgs)
 			}

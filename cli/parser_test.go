@@ -57,6 +57,7 @@ func TestValidateParametersFromParserArgs(t *testing.T) {
 				Include:              stringPtr("deployment"),
 				Exclude:              stringPtr("service"),
 				VerboseDiffs:         intPtr(1),
+				FileOutput:           stringPtr("output.txt"),
 				Err:                  nil,
 			},
 			expectedArgsValidated: ArgumentsReceivedValidated{
@@ -68,6 +69,7 @@ func TestValidateParametersFromParserArgs(t *testing.T) {
 				Include:              []string{"deployment"},
 				Exclude:              []string{"service"},
 				VerboseDiffs:         1,
+				FileOutput:           "output.txt",
 				Err:                  nil,
 			},
 		},

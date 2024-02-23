@@ -41,7 +41,6 @@ func main() {
 	// 	writers = append(writers, file)
 	// }
 	// multiWriter := io.MultiWriter(writers...)
-
 	// // Use a goroutine to copy output to both stdout and the file
 	// go func(out io.Writer) {
 	// 	for {

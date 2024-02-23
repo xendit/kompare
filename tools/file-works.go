@@ -58,7 +58,11 @@ func IsValidPath(path string) (isValid bool, absPath string, err error) {
 		// For other errors, return the error as is.
 		return false, "", err
 	}
-	defer file.Close()
+	// Defer the closure of the file and its removal.
+	defer func() {
+		file.Close()
+		os.Remove(absPath)
+	}()
 
 	return true, absPath, nil
 }

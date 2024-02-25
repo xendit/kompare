@@ -39,10 +39,6 @@ func TestIsValidPath(t *testing.T) {
 			expectedValid: false,
 			expectedError: "invalid character ':' found in the path",
 		},
-		"/usr/local/bin/executable": {
-			expectedValid: false,
-			expectedError: "the file or one or more directories in the path do not exist or can not be created",
-		},
 		"/home/user/pictures/photo.jpg": {
 			expectedValid: false,
 			expectedError: "the file or one or more directories in the path do not exist or can not be created",

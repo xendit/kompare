@@ -12,12 +12,14 @@ import (
 type ArgumentsReceived struct {
 	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName, FiltersForObject, Include, Exclude *string
 	VerboseDiffs                                                                                                  *int
+	FileOutput                                                                                                    *string
 	Err                                                                                                           error
 }
 type ArgumentsReceivedValidated struct {
 	KubeconfigFile, SourceClusterContext, TargetClusterContext, NamespaceName, FiltersForObject string
 	Include, Exclude                                                                            []string
 	VerboseDiffs                                                                                int
+	FileOutput                                                                                  string
 	Err                                                                                         error
 }
 
@@ -46,6 +48,7 @@ func PaserReader() ArgumentsReceivedValidated {
 	Excludek8sObjects := parser.String("e", "exclude", &argparse.Options{Help: "List of kubernetes objects to include, this should be an element or a comma separated list."})
 	namespaceName := parser.String("n", "namespace", &argparse.Options{Help: "Namespace that needs to be copied. defaults to 'default' namespace. The option also accepts wilcard matching of namespace. E.G.: '*-pci' would match any namespace that ends with -pci. Notice that the '' might be required in some consoles like iterm"})
 	filtersForObject := parser.String("f", "filter", &argparse.Options{Help: "Filter what parts of the object I want to compare. must be used together with -i option to apply to that type of objects"})
+	fileOutput := parser.String("l", "file", &argparse.Options{Required: false, Help: "Save the output to a file. If not provided, the output will be printed to the console."})
 	err := parser.Parse(os.Args)
 	if err != nil {
 		// In case of error print error and print usage
@@ -60,6 +63,7 @@ func PaserReader() ArgumentsReceivedValidated {
 			Include:              []string{""},
 			Exclude:              []string{""},
 			VerboseDiffs:         *verboseDiffs,
+			FileOutput:           "",
 			Err:                  err}
 	}
 	TheArgs := ArgumentsReceived{
@@ -71,6 +75,7 @@ func PaserReader() ArgumentsReceivedValidated {
 		Exclude:              Excludek8sObjects,
 		FiltersForObject:     filtersForObject,
 		VerboseDiffs:         verboseDiffs,
+		FileOutput:           fileOutput,
 		Err:                  err}
 	ArgumentsReceivedValidated := ValidateParametersFromParserArgs(TheArgs)
 	return ArgumentsReceivedValidated
@@ -134,6 +139,28 @@ func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceiv
 		fmt.Println("The program will try to execute anyway, but the output might not be what you expect.")
 		fmt.Println("The -f is to be used with one and only one -i include object type at the time.")
 	}
+	file := *TheArgs.FileOutput
+	if file != "" {
+		valid, filePath, err := tools.IsValidPath(file)
+		if err == nil {
+			if valid {
+				fmt.Printf("The output will be saved to the file: %s\n", filePath)
+			}
+		} else {
+			fmt.Println(err)
+		}
+		return ArgumentsReceivedValidated{
+			KubeconfigFile:       configFile,
+			SourceClusterContext: strSourceClusterContext,
+			TargetClusterContext: strTargetClusterContext,
+			NamespaceName:        strNamespaceName,
+			FiltersForObject:     *TheArgs.FiltersForObject,
+			Include:              includeStr,
+			Exclude:              excludeStr,
+			VerboseDiffs:         *TheArgs.VerboseDiffs,
+			FileOutput:           filePath,
+			Err:                  nil}
+	}
 	return ArgumentsReceivedValidated{
 		KubeconfigFile:       configFile,
 		SourceClusterContext: strSourceClusterContext,
@@ -143,6 +170,7 @@ func ValidateParametersFromParserArgs(TheArgs ArgumentsReceived) ArgumentsReceiv
 		Include:              includeStr,
 		Exclude:              excludeStr,
 		VerboseDiffs:         *TheArgs.VerboseDiffs,
+		FileOutput:           "",
 		Err:                  nil}
 }
 

@@ -35,5 +35,5 @@ jobs:
     - name: linter
       uses: golangci/golangci-lint-action@v4
 
-    # - name: Build
-    #   run: go build -v ./...
+    - name: Build
+      run: go build -v ./...

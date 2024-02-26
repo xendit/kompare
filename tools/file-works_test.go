@@ -1,6 +1,8 @@
 package tools
 
 import (
+	"log"
+	"os"
 	"strings"
 	"testing"
 )
@@ -72,5 +74,34 @@ func TestIsValidPath(t *testing.T) {
 				t.Errorf("Path %s validation failed. Expected valid: %t but got: %t", path, expected.expectedValid, valid)
 			}
 		}
+	}
+}
+
+func TestLogOutput(t *testing.T) {
+	// Create a temporary file for testing.
+	tmpfile, err := os.CreateTemp("", "testlogoutput*.log")
+	if err != nil {
+		t.Fatalf("failed to create temporary file: %v", err)
+	}
+	defer os.Remove(tmpfile.Name()) // Clean up the temporary file.
+
+	// Call logOutput to redirect output to the temporary file.
+	deferredFunc := LogOutput(tmpfile.Name())
+
+	// Send some output to the log.
+	log.Print("Test log message")
+
+	// Close the log output.
+	deferredFunc()
+
+	// Read the contents of the temporary file.
+	content, err := os.ReadFile(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("failed to read temporary file: %v", err)
+	}
+
+	// Check if the log message is present in the file content.
+	if !strings.Contains(string(content), "Test log message") {
+		t.Errorf("log message not found in file content")
 	}
 }

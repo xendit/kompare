@@ -127,8 +127,10 @@ Finished all comparison works!
 **Notice:** The software assumes the current context as the source cluster by default (use `-s` or `--source` to set a different source context). The `-t` option specifies the destination/target cluster in your comparison. If it was number comparison -s is LHS and -t is RHS.
 
 **Notice:** The source cluster is typically considered the source of truth for the comparison in Kompare.
-
-### Prerequisites
+## Prerequisites
+### for use
+For now you need to build the binary.
+### Prerequisites for development
 
 Kompare is written in Go and has been tested on Mac Silicon Processors. It should work on other architectures and operating systems as well. Ensure you have Go 1.21.6 or higher installed.
 

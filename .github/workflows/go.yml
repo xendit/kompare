@@ -35,5 +35,18 @@ jobs:
     - name: linter
       uses: golangci/golangci-lint-action@v4
 
-    - name: Build
-      run: go build -v ./...
+    - uses: wangyoucao577/go-release-action@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: linux
+        goarch: amd64
+    - uses: wangyoucao577/go-release-action@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: darwin
+        goarch: arm
+    - uses: wangyoucao577/go-release-action@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: windows
+        goarch: amd64

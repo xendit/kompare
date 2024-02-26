@@ -23,6 +23,9 @@ func main() {
 		err := fmt.Errorf("error parsing arguments: %v", args.Err)
 		panic(err)
 	}
+	if args.FileOutput != "" {
+		defer tools.LogOutput(args.FileOutput)()
+	}
 	// var file *os.File
 	// if args.FileOutput != "" {
 	// 	_, fileString, _ := tools.IsValidPath(args.FileOutput)

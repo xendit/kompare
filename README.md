@@ -27,6 +27,7 @@ $ ./kompare -h
 usage: print [-h|--help] [-c|--conf "<value>"] [-s|--src "<value>"] -t|--target
              "<value>" [-v|--verbose] [-i|--include "<value>"] [-e|--exclude
              "<value>"] [-n|--namespace "<value>"] [-f|--filter "<value>"]
+             [-l|--file "<value>"]
 
              Prints provided string to stdout
 
@@ -53,6 +54,8 @@ Arguments:
   -f  --filter     Filter what parts of the object I want to compare. must be
                    used together with -i option to apply to that type of
                    objects
+  -l  --file       Save the output to a file. If not provided, the output will
+                   be printed to the console.
 $
 ```
 

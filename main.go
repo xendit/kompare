@@ -26,35 +26,6 @@ func main() {
 	if args.FileOutput != "" {
 		defer tools.LogOutput(args.FileOutput)()
 	}
-	// var file *os.File
-	// if args.FileOutput != "" {
-	// 	_, fileString, _ := tools.IsValidPath(args.FileOutput)
-	// 	var err error
-	// 	file, err = os.Create(fileString)
-	// 	if err != nil {
-	// 		fmt.Println("Error opening file:", err)
-	// 		os.Exit(1)
-	// 	}
-	// 	defer file.Close()
-	// }
-	// // Create a multi-writer to write to both stdout and the file (if specified)
-	// var writers []io.Writer
-	// writers = append(writers, os.Stdout)
-	// if file != nil {
-	// 	writers = append(writers, file)
-	// }
-	// multiWriter := io.MultiWriter(writers...)
-	// // Use a goroutine to copy output to both stdout and the file
-	// go func(out io.Writer) {
-	// 	for {
-	// 		// Copy output to both stdout and the file
-	// 		_, err := io.Copy(out, os.Stdin)
-	// 		if err != nil {
-	// 			fmt.Println("Error copying output:", err)
-	// 			return
-	// 		}
-	// 	}
-	// }(multiWriter)
 
 	// Connect to source cluster
 	clientsetToSource, err := connect.ConnectToSource(args.SourceClusterContext, &args.KubeconfigFile)

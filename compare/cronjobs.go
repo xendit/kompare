@@ -17,7 +17,7 @@ func CompareCronJobs(clientsetToSource, clientsetToTarget *kubernetes.Clientset,
 		fmt.Printf("Error getting services list: %v\n", err)
 		return TheDiff, err
 	}
-	targetCronJobs, err := query.ListCronJobs(clientsetToSource, namespaceName)
+	targetCronJobs, err := query.ListCronJobs(clientsetToTarget, namespaceName)
 	if err != nil {
 		fmt.Printf("Error getting services list: %v\n", err)
 		return TheDiff, err
